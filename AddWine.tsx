@@ -5,6 +5,7 @@ import { useCreateWine, useUpdateWine, uploadWineImage } from './useApi'
 import { openAIService } from './openai.service'
 import { generateSystembolagetLink, getCurrentWeek, imageToBase64 } from './wine.utils'
 import { toast } from 'react-hot-toast'
+import { LocationPicker } from './LocationPicker'
 import type { WineInfo } from './wine.types'
 
 type AddMode = 'choose' | 'image' | 'text'
@@ -23,7 +24,15 @@ export function AddWine() {
   
   // Analyzed wine info
   const [wineInfo, setWineInfo] = useState<WineInfo | null>(null)
-  
+
+  // Location info
+  const [location, setLocation] = useState({
+    plats: '',
+    latitude: null as number | null,
+    longitude: null as number | null,
+    adress: ''
+  })
+
   const createWineMutation = useCreateWine()
   const updateWineMutation = useUpdateWine()
 
@@ -89,7 +98,9 @@ export function AddWine() {
         typ: wineInfo.type,
         datum_tillagd: new Date().toISOString(),
         producent: wineInfo.producer || '',
-        ursprung: wineInfo.country,
+        ursprung: wineInfo.country, // Keep for backwards compatibility
+        land: wineInfo.country,
+        region: wineInfo.region || '',
         druva: wineInfo.grapes || '',
         taggar: '',
         pris: null,
@@ -97,10 +108,10 @@ export function AddWine() {
         systembolaget_nr: null,
         serv_temperatur: wineInfo.servingTemperature || null,
         systembolaget_lank: generateSystembolagetLink(wineInfo.name),
-        plats: null,
-        latitude: null,
-        longitude: null,
-        adress: null,
+        plats: location.plats || null,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        adress: location.adress || null,
         beskrivning: wineInfo.description || null,
         smakanteckningar: wineInfo.tastingNotes || null,
         servering_info: wineInfo.foodPairing || null,
@@ -254,6 +265,8 @@ export function AddWine() {
             wineInfo={wineInfo}
             onSave={handleSaveWine}
             loading={loading}
+            location={location}
+            onLocationChange={setLocation}
           />
         )}
       </div>
@@ -308,6 +321,8 @@ export function AddWine() {
             wineInfo={wineInfo}
             onSave={handleSaveWine}
             loading={loading}
+            location={location}
+            onLocationChange={setLocation}
           />
         )}
       </div>
@@ -322,10 +337,19 @@ function WineInfoForm({
   wineInfo,
   onSave,
   loading,
+  location,
+  onLocationChange,
 }: {
   wineInfo: WineInfo
   onSave: () => void
   loading: boolean
+  location: {
+    plats: string
+    latitude: number | null
+    longitude: number | null
+    adress: string
+  }
+  onLocationChange: (location: any) => void
 }) {
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
@@ -377,6 +401,14 @@ function WineInfoForm({
             <p className="text-gray-700">{wineInfo.tastingNotes}</p>
           </div>
         )}
+
+        <div className="border-t border-gray-200 pt-4">
+          <LocationPicker
+            value={location}
+            onChange={onLocationChange}
+            compact={true}
+          />
+        </div>
       </div>
 
       <button

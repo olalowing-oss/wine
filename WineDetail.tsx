@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft, Edit2, Trash2, Home, MapPin, Tag, Star,
-  Wine as WineIcon, ExternalLink, Loader2, Sparkles, Upload
+  Wine as WineIcon, ExternalLink, Loader2, Sparkles, Upload, Navigation
 } from 'lucide-react'
 import { useWine, useUpdateWine, useDeleteWine, useWines, uploadWineImage } from './useApi'
 import { openAIService } from './openai.service'
+import { toast } from 'react-hot-toast'
+import { StarRating } from './StarRating'
 import {
   getDisplayTags,
   formatPrice,
@@ -13,7 +15,6 @@ import {
   getAllUserImages,
   getPrimaryImageURL
 } from './wine.utils'
-import { toast } from 'react-hot-toast'
 
 export function WineDetail() {
   const { id } = useParams<{ id: string }>()
@@ -81,6 +82,20 @@ export function WineDetail() {
       toast.error(error.message || 'Kunde inte generera rekommendationer')
     } finally {
       setLoadingRecommendations(false)
+    }
+  }
+
+  const handleRatingChange = async (newRating: number) => {
+    try {
+      await updateMutation.mutateAsync({
+        id: wine.id,
+        updates: {
+          betyg: newRating
+        }
+      })
+      toast.success(`Betyg uppdaterat till ${newRating}/5`)
+    } catch (error: any) {
+      toast.error(error.message || 'Kunde inte uppdatera betyg')
     }
   }
 
@@ -191,21 +206,30 @@ export function WineDetail() {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-1">Ursprung</h3>
-                <div className="flex items-center space-x-2 text-gray-900">
-                  <MapPin className="w-4 h-4" />
-                  <span>{wine.ursprung || '-'}</span>
-                </div>
-              </div>
-
-              {wine.druva && (
+              {wine.land && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-600 mb-1">Druva</h3>
-                  <p className="text-gray-900">{wine.druva}</p>
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">Land</h3>
+                  <div className="flex items-center space-x-2 text-gray-900">
+                    <MapPin className="w-4 h-4" />
+                    <span>{wine.land}</span>
+                  </div>
+                </div>
+              )}
+
+              {wine.region && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">Region</h3>
+                  <p className="text-gray-900">{wine.region}</p>
                 </div>
               )}
             </div>
+
+            {wine.druva && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-600 mb-1">Druva</h3>
+                <p className="text-gray-900">{wine.druva}</p>
+              </div>
+            )}
 
             {wine.pris && (
               <div>
@@ -214,24 +238,18 @@ export function WineDetail() {
               </div>
             )}
 
-            {wine.betyg && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-1">Betyg</h3>
-                <div className="flex items-center space-x-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`w-6 h-6 ${
-                        star <= wine.betyg!
-                          ? 'text-yellow-500 fill-current'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
-                  <span className="text-gray-900 font-medium">{wine.betyg}/5</span>
-                </div>
-              </div>
-            )}
+            <div>
+              <h3 className="text-sm font-medium text-gray-600 mb-1">Betyg</h3>
+              <StarRating
+                rating={wine.betyg || 0}
+                onRatingChange={handleRatingChange}
+                size="lg"
+                showLabel={true}
+              />
+              {!wine.betyg && (
+                <p className="text-sm text-gray-500 mt-1">Klicka för att betygsätta</p>
+              )}
+            </div>
 
             {tags.length > 0 && (
               <div>
@@ -298,12 +316,25 @@ export function WineDetail() {
         {wine.plats && (
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Plats</h3>
-            <div className="flex items-start space-x-2">
-              <MapPin className="w-5 h-5 text-gray-600 mt-0.5" />
-              <div>
-                <p className="text-gray-900 font-medium">{wine.plats}</p>
-                {wine.adress && <p className="text-gray-600 text-sm">{wine.adress}</p>}
+            <div className="space-y-3">
+              <div className="flex items-start space-x-2">
+                <MapPin className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-gray-900 font-medium">{wine.plats}</p>
+                  {wine.adress && <p className="text-gray-600 text-sm mt-1">{wine.adress}</p>}
+                </div>
               </div>
+              {wine.latitude && wine.longitude && (
+                <a
+                  href={`https://www.google.com/maps?q=${wine.latitude},${wine.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 text-sm text-purple-600 hover:text-purple-700"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Visa i Google Maps</span>
+                </a>
+              )}
             </div>
           </div>
         )}
@@ -366,6 +397,8 @@ function WineEditForm({ wine, onCancel, onSave }: { wine: any; onCancel: () => v
     typ: wine.typ || '',
     producent: wine.producent || '',
     ursprung: wine.ursprung || '',
+    land: wine.land || '',
+    region: wine.region || '',
     druva: wine.druva || '',
     pris: wine.pris || '',
     betyg: wine.betyg || '',
@@ -376,11 +409,74 @@ function WineEditForm({ wine, onCancel, onSave }: { wine: any; onCancel: () => v
     serv_temperatur: wine.serv_temperatur || '',
     systembolaget_lank: wine.systembolaget_lank || '',
     plats: wine.plats || '',
+    latitude: wine.latitude || null,
+    longitude: wine.longitude || null,
+    adress: wine.adress || '',
     ovrigt: wine.ovrigt || '',
   })
 
   const [newImages, setNewImages] = useState<{ file: File; preview: string; slot: number }[]>([])
   const [uploading, setUploading] = useState(false)
+  const [fetchingLocation, setFetchingLocation] = useState(false)
+
+  const handleGetCurrentLocation = async () => {
+    if (!navigator.geolocation) {
+      toast.error('Geolokalisering stöds inte i din webbläsare')
+      return
+    }
+
+    setFetchingLocation(true)
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        })
+      })
+
+      const { latitude, longitude } = position.coords
+
+      // Reverse geocode to get address
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+        )
+        const data = await response.json()
+
+        const placeName = data.display_name || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
+
+        setFormData({
+          ...formData,
+          latitude,
+          longitude,
+          adress: placeName,
+          plats: formData.plats || data.name || data.address?.amenity || data.address?.shop || data.address?.restaurant || ''
+        })
+
+        toast.success('Plats hämtad!')
+      } catch (error) {
+        // If geocoding fails, just save coordinates
+        setFormData({
+          ...formData,
+          latitude,
+          longitude,
+          adress: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
+        })
+        toast.success('Koordinater sparade!')
+      }
+    } catch (error: any) {
+      if (error.code === 1) {
+        toast.error('Du måste ge tillåtelse för att använda din plats')
+      } else if (error.code === 2) {
+        toast.error('Kunde inte hitta din plats')
+      } else {
+        toast.error('Kunde inte hämta plats: ' + error.message)
+      }
+    } finally {
+      setFetchingLocation(false)
+    }
+  }
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>, slot: number) => {
     const file = e.target.files?.[0]
@@ -553,18 +649,29 @@ function WineEditForm({ wine, onCancel, onSave }: { wine: any; onCancel: () => v
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Ursprung
+                Land
               </label>
               <input
                 type="text"
-                value={formData.ursprung}
-                onChange={(e) => setFormData({ ...formData, ursprung: e.target.value })}
+                value={formData.land}
+                onChange={(e) => setFormData({ ...formData, land: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Region
+              </label>
+              <input
+                type="text"
+                value={formData.region}
+                onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Druva
@@ -594,16 +701,13 @@ function WineEditForm({ wine, onCancel, onSave }: { wine: any; onCancel: () => v
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Betyg (1-5)
+                Betyg
               </label>
-              <input
-                type="number"
-                min="1"
-                max="5"
-                step="0.1"
-                value={formData.betyg}
-                onChange={(e) => setFormData({ ...formData, betyg: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              <StarRating
+                rating={formData.betyg ? parseFloat(formData.betyg as any) : 0}
+                onRatingChange={(rating) => setFormData({ ...formData, betyg: rating })}
+                size="lg"
+                showLabel={true}
               />
             </div>
 
@@ -646,17 +750,64 @@ function WineEditForm({ wine, onCancel, onSave }: { wine: any; onCancel: () => v
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Plats
-            </label>
-            <input
-              type="text"
-              value={formData.plats}
-              onChange={(e) => setFormData({ ...formData, plats: e.target.value })}
-              placeholder="t.ex. Restaurang, Butik"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
+          {/* Location Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-medium text-gray-700">
+                Platsinformation
+              </label>
+              <button
+                type="button"
+                onClick={handleGetCurrentLocation}
+                disabled={fetchingLocation}
+                className="flex items-center space-x-2 text-sm text-purple-600 hover:text-purple-700 disabled:opacity-50"
+              >
+                {fetchingLocation ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Hämtar plats...</span>
+                  </>
+                ) : (
+                  <>
+                    <Navigation className="w-4 h-4" />
+                    <span>Använd min nuvarande plats</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-600 mb-2">
+                Platsnamn
+              </label>
+              <input
+                type="text"
+                value={formData.plats}
+                onChange={(e) => setFormData({ ...formData, plats: e.target.value })}
+                placeholder="t.ex. Restaurang, Butik"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+
+            {formData.adress && (
+              <div>
+                <label className="block text-sm text-gray-600 mb-2">
+                  Adress
+                </label>
+                <input
+                  type="text"
+                  value={formData.adress}
+                  onChange={(e) => setFormData({ ...formData, adress: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+            )}
+
+            {(formData.latitude && formData.longitude) && (
+              <div className="text-xs text-gray-500">
+                Koordinater: {formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}
+              </div>
+            )}
           </div>
 
           <div>

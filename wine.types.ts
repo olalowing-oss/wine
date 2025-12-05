@@ -7,6 +7,8 @@ export interface Wine {
   datum_tillagd: string
   producent: string
   ursprung: string
+  land: string
+  region: string
   druva: string
   taggar: string
   pris: number | null

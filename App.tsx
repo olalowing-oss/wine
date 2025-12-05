@@ -6,6 +6,7 @@ import { WineList } from './WineList'
 import { WineDetail } from './WineDetail'
 import { AddWine } from './AddWine'
 import { ImportWines } from './ImportWines'
+import { HomeWines } from './HomeWines'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,20 +40,6 @@ function App() {
 }
 
 // Placeholder components for routes not yet created
-function HomeWines() {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-gray-900">Viner hemma</h2>
-      <p className="text-gray-600">Denna vy visar endast viner som är markerade som "Hemma"</p>
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <p className="text-yellow-800">
-          Implementera filter på <code>ar_hemma = true</code> i WineList-komponenten
-        </p>
-      </div>
-    </div>
-  )
-}
-
 function MenuView() {
   return (
     <div className="space-y-6">
