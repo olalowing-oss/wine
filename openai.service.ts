@@ -159,9 +159,35 @@ VIKTIGT: Använd din vinkunskap för att ge FULLSTÄNDIGA beskrivningar även om
 
 Användarens beskrivning: "${description}"
 
-Analysera beskrivningen och fyll i så mycket information som möjligt baserat på din kunskap om vintyper, regioner och producenter.
+REGLER:
+1) Faktafält (name, producer, vintage, alcoholContent, country, region, grapes): Ange endast om det framgår av beskrivningen. Om ej specificerat: använd null för siffror eller "" för text.
+2) Beskrivande fält (category, description, appearance, aromaProfile, tasteProfile, tastingNotes, servingTemperature, servingSuggestions, foodPairing, suggestedVenue): Här ska du skriva fylliga och professionella sommelierbeskrivningar baserat på din kunskap om denna typ av vin. Använd ett rikt språk, ge nyanser, inkludera typiska druv- och regionsdrag.
+3) Format: Returnera exakt JSON-strukturen nedan, utan extra text eller kommentarer.
+4) Tonalitet: Använd professionellt, beskrivande språk.
 
-Returnera samma JSON-struktur som för bildanalys men baserat på textbeskrivningen.`
+Returnera ENDAST denna JSON-struktur:
+{
+  "name": "vinnamn från beskrivningen eller bästa gissning",
+  "type": "vintyp på svenska (Rött/Vitt/Rosé/Mousserande)",
+  "country": "ursprungsland om känt",
+  "region": "specifik region om känd",
+  "grapes": "druvsort(er) som kommaseparerad text om känd",
+  "vintage": årgång_som_nummer_om_känd,
+  "alcoholContent": alkoholhalt_som_nummer_om_känd,
+  "producer": "producent/märke om känt",
+  "category": "vinets kategori och stil",
+  "description": "professionell beskrivning av vinet",
+  "appearance": "typisk färg och utseende för denna vintyp",
+  "aromaProfile": "detaljerad doftprofil",
+  "tasteProfile": "detaljerad smakprofil",
+  "tastingNotes": "professionella smakanteckningar",
+  "servingTemperatur": "optimal serveringstemperatur",
+  "servingSuggestions": "glastyp och serveringsråd",
+  "foodPairing": "specifika matmatchningar",
+  "suggestedVenue": "förslag på typ av plats där vinet bäst njuts"
+}
+
+VIKTIGT: Returnera ENDAST giltig JSON, ingen extra text före eller efter.`
   }
 
   private createRecommendationPrompt(wine: Wine, existingWines: Wine[]): string {
