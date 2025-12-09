@@ -25,8 +25,8 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Navigate to="/wines" replace />} />
             <Route path="wines" element={<WineList />} />
-            <Route path="wines/add" element={<AddWine />} />
-            <Route path="wines/import" element={<ImportWines />} />
+            <Route path="add" element={<AddWine />} />
+            <Route path="import" element={<ImportWines />} />
             <Route path="wines/:id" element={<WineDetail />} />
             <Route path="home-wines" element={<HomeWines />} />
             <Route path="menu" element={<MenuView />} />
