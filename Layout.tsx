@@ -10,7 +10,6 @@ export function Layout() {
     { path: '/wines', icon: Wine, label: 'Viner' },
     { path: '/home-wines', icon: Home, label: 'Hemma' },
     { path: '/menu', icon: Menu, label: 'Meny' },
-    { path: '/export', icon: Upload, label: 'Backup' },
   ]
 
   return (
@@ -83,6 +82,14 @@ export function Layout() {
                   >
                     <Upload className="w-4 h-4" />
                     <span>Importera</span>
+                  </Link>
+                  <div className="border-t border-gray-200 my-2"></div>
+                  <Link
+                    to="/export"
+                    className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Backup</span>
                   </Link>
                 </div>
               )}

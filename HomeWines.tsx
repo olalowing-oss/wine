@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Search, Wine as WineIcon, Home, MapPin, Tag, Star, Grid, List } from 'lucide-react'
+import { Search, Wine as WineIcon, Home, MapPin, Tag, Grid, List } from 'lucide-react'
 import { useWines } from './useApi'
 import { StarRating } from './StarRating'
 import { getDisplayTags, formatPrice, getPrimaryImageURL } from './wine.utils'
@@ -54,20 +54,11 @@ export function HomeWines() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900">Viner Hemma</h2>
-          <p className="text-gray-600 mt-1">
-            {homeWines.length} {homeWines.length === 1 ? 'vin' : 'viner'} i hemmaförrådet
-          </p>
-        </div>
-        <Link
-          to="/wines/add"
-          className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Lägg till</span>
-        </Link>
+      <div>
+        <h2 className="text-3xl font-bold text-gray-900">Viner Hemma</h2>
+        <p className="text-gray-600 mt-1">
+          {homeWines.length} {homeWines.length === 1 ? 'vin' : 'viner'} i hemmaförrådet
+        </p>
       </div>
 
       {/* Search Bar */}
