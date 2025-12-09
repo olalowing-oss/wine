@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Search, Filter, Wine as WineIcon, Home, MapPin, Tag, Star, Upload, Grid, List } from 'lucide-react'
+import { Search, Filter, Wine as WineIcon, Home, MapPin, Tag, Grid, List } from 'lucide-react'
 import { useWines } from './useApi'
 import { useFilterStore } from './store'
 import { StarRating } from './StarRating'
@@ -62,27 +62,9 @@ export function WineList() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900">Mina Viner</h2>
-          <p className="text-gray-600 mt-1">{wines.length} viner i samlingen</p>
-        </div>
-        <div className="flex space-x-3">
-          <Link
-            to="/wines/import"
-            className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            <Upload className="w-5 h-5" />
-            <span>Importera</span>
-          </Link>
-          <Link
-            to="/wines/add"
-            className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            <span>Lägg till</span>
-          </Link>
-        </div>
+      <div>
+        <h2 className="text-3xl font-bold text-gray-900">Mina Viner</h2>
+        <p className="text-gray-600 mt-1">{wines.length} viner i samlingen</p>
       </div>
 
       {/* Search and Filter Bar */}
@@ -224,19 +206,10 @@ export function WineList() {
             {wines.length === 0 ? 'Inga viner än' : 'Inga viner hittades'}
           </h3>
           <p className="text-gray-600 mb-6">
-            {wines.length === 0 
-              ? 'Lägg till ditt första vin för att komma igång!' 
+            {wines.length === 0
+              ? 'Använd menyn ovan för att lägga till ditt första vin!'
               : 'Prova att ändra dina filter'}
           </p>
-          {wines.length === 0 && (
-            <Link
-              to="/wines/add"
-              className="inline-flex items-center space-x-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              <span>Lägg till ditt första vin</span>
-            </Link>
-          )}
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
