@@ -9,6 +9,7 @@ import { openAIService } from './openai.service'
 import { toast } from 'react-hot-toast'
 import { StarRating } from './StarRating'
 import { GrapeLinkedText } from './GrapeLink'
+import { RegionLinkedText } from './RegionLink'
 import {
   getDisplayTags,
   formatPrice,
@@ -212,7 +213,7 @@ export function WineDetail() {
                   <h3 className="text-sm font-medium text-gray-600 mb-1">Land</h3>
                   <div className="flex items-center space-x-2 text-gray-900">
                     <MapPin className="w-4 h-4" />
-                    <span>{wine.land}</span>
+                    <span><RegionLinkedText text={wine.land} /></span>
                   </div>
                 </div>
               )}
@@ -220,7 +221,9 @@ export function WineDetail() {
               {wine.region && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-600 mb-1">Region</h3>
-                  <p className="text-gray-900">{wine.region}</p>
+                  <p className="text-gray-900">
+                    <RegionLinkedText text={wine.region} />
+                  </p>
                 </div>
               )}
             </div>
