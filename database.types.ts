@@ -145,6 +145,109 @@ export interface Database {
           updated_at?: string
         }
       }
+      grapes: {
+        Row: {
+          id: string
+          name: string
+          alternative_names: string[] | null
+          color: 'red' | 'white'
+          style: string
+          aromas: string
+          origin: string
+          styles: string
+          aging: string
+          food_pairing: string
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          name: string
+          alternative_names?: string[] | null
+          color: 'red' | 'white'
+          style: string
+          aromas: string
+          origin: string
+          styles: string
+          aging: string
+          food_pairing: string
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          alternative_names?: string[] | null
+          color?: 'red' | 'white'
+          style?: string
+          aromas?: string
+          origin?: string
+          styles?: string
+          aging?: string
+          food_pairing?: string
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      regions: {
+        Row: {
+          id: string
+          name: string
+          alternative_names: string[] | null
+          country: string
+          parent_region: string | null
+          region_type: 'country' | 'region' | 'subregion' | 'appellation'
+          climate: string
+          description: string
+          key_grapes: string
+          wine_styles: string
+          notable_appellations: string | null
+          classification_system: string | null
+          characteristics: string
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          name: string
+          alternative_names?: string[] | null
+          country: string
+          parent_region?: string | null
+          region_type: 'country' | 'region' | 'subregion' | 'appellation'
+          climate: string
+          description: string
+          key_grapes: string
+          wine_styles: string
+          notable_appellations?: string | null
+          classification_system?: string | null
+          characteristics: string
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          alternative_names?: string[] | null
+          country?: string
+          parent_region?: string | null
+          region_type?: 'country' | 'region' | 'subregion' | 'appellation'
+          climate?: string
+          description?: string
+          key_grapes?: string
+          wine_styles?: string
+          notable_appellations?: string | null
+          classification_system?: string | null
+          characteristics?: string
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
