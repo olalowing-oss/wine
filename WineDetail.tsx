@@ -8,6 +8,7 @@ import { useWine, useUpdateWine, useDeleteWine, useWines, uploadWineImage } from
 import { openAIService } from './openai.service'
 import { toast } from 'react-hot-toast'
 import { StarRating } from './StarRating'
+import { GrapeLinkedText } from './GrapeLink'
 import {
   getDisplayTags,
   formatPrice,
@@ -227,7 +228,9 @@ export function WineDetail() {
             {wine.druva && (
               <div>
                 <h3 className="text-sm font-medium text-gray-600 mb-1">Druva</h3>
-                <p className="text-gray-900">{wine.druva}</p>
+                <p className="text-gray-900">
+                  <GrapeLinkedText text={wine.druva} />
+                </p>
               </div>
             )}
 
@@ -288,14 +291,18 @@ export function WineDetail() {
         {wine.beskrivning && (
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Beskrivning</h3>
-            <p className="text-gray-700 whitespace-pre-line">{wine.beskrivning}</p>
+            <p className="text-gray-700 whitespace-pre-line">
+              <GrapeLinkedText text={wine.beskrivning} />
+            </p>
           </div>
         )}
 
         {wine.smakanteckningar && (
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Smakanteckningar</h3>
-            <p className="text-gray-700 whitespace-pre-line">{wine.smakanteckningar}</p>
+            <p className="text-gray-700 whitespace-pre-line">
+              <GrapeLinkedText text={wine.smakanteckningar} />
+            </p>
           </div>
         )}
 
