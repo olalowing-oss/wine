@@ -1,5 +1,5 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { Wine, Home, Menu, Upload, Plus, ChevronDown, BookOpen } from 'lucide-react'
+import { Wine, Home, Menu, Upload, Plus, ChevronDown, BookOpen, MapPin } from 'lucide-react'
 import { useState } from 'react'
 
 export function Layout() {
@@ -9,7 +9,8 @@ export function Layout() {
   const navItems = [
     { path: '/wines', icon: Wine, label: 'Viner' },
     { path: '/home-wines', icon: Home, label: 'Hemma' },
-    { path: '/info', icon: BookOpen, label: 'Information' },
+    { path: '/info', icon: BookOpen, label: 'Druvor' },
+    { path: '/regions', icon: MapPin, label: 'Regioner' },
     { path: '/menu', icon: Menu, label: 'Meny' },
   ]
 

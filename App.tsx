@@ -9,6 +9,7 @@ import { AddWine } from './AddWine'
 import { ImportWines } from './ImportWines'
 import { HomeWines } from './HomeWines'
 import { GrapeGuide } from './GrapeGuide'
+import { RegionGuide } from './RegionGuide'
 import { useWines } from './useApi'
 
 const queryClient = new QueryClient({
@@ -33,6 +34,7 @@ function App() {
             <Route path="wines/:id" element={<WineDetail />} />
             <Route path="home-wines" element={<HomeWines />} />
             <Route path="info" element={<GrapeGuide />} />
+            <Route path="regions" element={<RegionGuide />} />
             <Route path="menu" element={<MenuView />} />
             <Route path="export" element={<ExportView />} />
           </Route>
