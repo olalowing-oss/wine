@@ -105,6 +105,18 @@ export function linkifyGrapeNames(text: string): ReactNode[] {
         key={`${match.index}-${grapeId}`}
         to={`/info#${grapeId}`}
         className="text-purple-600 hover:text-purple-700 underline decoration-dotted"
+        onClick={(e) => {
+          // If we're already on the info page, handle scroll manually
+          if (window.location.pathname === '/info') {
+            e.preventDefault()
+            const element = document.getElementById(grapeId)
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              // Trigger expansion by updating the URL hash
+              window.location.hash = grapeId
+            }
+          }
+        }}
       >
         {grapeName}
       </Link>

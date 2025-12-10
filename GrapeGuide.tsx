@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Search, Wine, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface Grape {
@@ -578,9 +579,31 @@ const grapes: Grape[] = [
 ]
 
 export function GrapeGuide() {
+  const location = useLocation()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedColor, setSelectedColor] = useState<'all' | 'red' | 'white'>('all')
   const [expandedGrape, setExpandedGrape] = useState<string | null>(null)
+
+  // Handle anchor navigation and auto-expand grape
+  useEffect(() => {
+    if (location.hash) {
+      const grapeId = location.hash.substring(1) // Remove the #
+
+      // Find and expand the grape
+      const grape = grapes.find(g => g.id === grapeId)
+      if (grape) {
+        setExpandedGrape(grapeId)
+
+        // Scroll to the element after a short delay to ensure it's rendered
+        setTimeout(() => {
+          const element = document.getElementById(grapeId)
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+        }, 100)
+      }
+    }
+  }, [location.hash])
 
   const filteredGrapes = grapes.filter(grape => {
     const matchesSearch = grape.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
