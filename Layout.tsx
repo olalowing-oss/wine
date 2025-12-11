@@ -1,16 +1,15 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { Wine, Home, Menu, Upload, Plus, ChevronDown, BookOpen, MapPin } from 'lucide-react'
+import { Wine, Home, Menu, Upload, Plus, ChevronDown, BookOpen } from 'lucide-react'
 import { useState } from 'react'
 
 export function Layout() {
   const location = useLocation()
   const [showAddMenu, setShowAddMenu] = useState(false)
+  const [showInfoMenu, setShowInfoMenu] = useState(false)
 
   const navItems = [
     { path: '/wines', icon: Wine, label: 'Viner' },
     { path: '/home-wines', icon: Home, label: 'Hemma' },
-    { path: '/info', icon: BookOpen, label: 'Druvor' },
-    { path: '/regions', icon: MapPin, label: 'Regioner' },
     { path: '/menu', icon: Menu, label: 'Meny' },
   ]
 
@@ -51,6 +50,42 @@ export function Layout() {
                   </Link>
                 )
               })}
+
+              {/* Information Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowInfoMenu(!showInfoMenu)}
+                  onBlur={() => setTimeout(() => setShowInfoMenu(false), 200)}
+                  className={`flex items-center space-x-2 px-4 py-3 border-b-2 transition-colors ${
+                    location.pathname === '/info' || location.pathname === '/regions'
+                      ? 'border-purple-600 text-purple-600'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                  }`}
+                >
+                  <BookOpen className="w-5 h-5" />
+                  <span className="font-medium">Information</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showInfoMenu ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showInfoMenu && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
+                    <Link
+                      to="/info"
+                      className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                    >
+                      <Wine className="w-4 h-4" />
+                      <span>Druvor</span>
+                    </Link>
+                    <Link
+                      to="/regions"
+                      className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      <span>Regioner</span>
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Add Menu Dropdown - Right aligned */}
