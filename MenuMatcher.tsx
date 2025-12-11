@@ -111,7 +111,18 @@ export function MenuMatcher() {
       })
 
       if (!response.ok) {
-        throw new Error('AI-analys misslyckades')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API error:', errorData)
+
+        // Show specific error message
+        if (errorData.error?.includes('API key not configured')) {
+          toast.error('OpenAI API-nyckel saknas. Visar demo-data istället.')
+        } else {
+          toast.error('AI-analys misslyckades. Visar demo-data istället.')
+        }
+
+        // Show demo data
+        throw new Error('Using demo data')
       }
 
       const data = await response.json()
@@ -119,9 +130,8 @@ export function MenuMatcher() {
       toast.success('Analys klar!')
     } catch (error) {
       console.error('Error analyzing menu:', error)
-      toast.error('Kunde inte analysera menyn. Se till att API:et är konfigurerat.')
 
-      // Demo data for development
+      // Demo data for development and when API is not configured
       setMatches([
         {
           dish: 'Grillad lax med citronsmör',
