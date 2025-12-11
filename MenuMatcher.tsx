@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Upload, Wine, Sparkles, X, FileText, Image as ImageIcon } from 'lucide-react'
+import { Upload, Wine, Sparkles, X, FileText } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { useWines } from './useApi'
 
@@ -21,6 +21,7 @@ export function MenuMatcher() {
   const [menuFile, setMenuFile] = useState<File | null>(null)
   const [menuPreview, setMenuPreview] = useState<string | null>(null)
   const [wineListFile, setWineListFile] = useState<File | null>(null)
+  const [wineListPreview, setWineListPreview] = useState<string | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [matches, setMatches] = useState<MenuMatch[]>([])
 
@@ -48,10 +49,19 @@ export function MenuMatcher() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (file.type === 'application/pdf' || file.type === 'text/plain' || file.type.startsWith('image/')) {
+    // Check if it's an image
+    if (file.type.startsWith('image/')) {
       setWineListFile(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setWineListPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    } else if (file.type === 'application/pdf' || file.type === 'text/plain') {
+      setWineListFile(file)
+      setWineListPreview(null)
     } else {
-      toast.error('Vänligen ladda upp en PDF, textfil eller bild')
+      toast.error('Vänligen ladda upp en bild, PDF eller textfil')
     }
   }
 
@@ -162,6 +172,7 @@ export function MenuMatcher() {
     setMenuFile(null)
     setMenuPreview(null)
     setWineListFile(null)
+    setWineListPreview(null)
     setMatches([])
   }
 
@@ -254,19 +265,26 @@ export function MenuMatcher() {
             </label>
           ) : (
             <div className="space-y-3">
-              <div className="bg-gray-100 rounded-lg p-4 flex items-center space-x-3">
-                {wineListFile.type.startsWith('image/') ? (
-                  <ImageIcon className="w-8 h-8 text-gray-600" />
-                ) : (
+              {wineListPreview ? (
+                <img
+                  src={wineListPreview}
+                  alt="Wine list preview"
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+              ) : (
+                <div className="bg-gray-100 rounded-lg p-4 flex items-center space-x-3">
                   <FileText className="w-8 h-8 text-gray-600" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 truncate">{wineListFile.name}</p>
-                  <p className="text-sm text-gray-500">{(wineListFile.size / 1024).toFixed(1)} KB</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 truncate">{wineListFile.name}</p>
+                    <p className="text-sm text-gray-500">{(wineListFile.size / 1024).toFixed(1)} KB</p>
+                  </div>
                 </div>
-              </div>
+              )}
               <button
-                onClick={() => setWineListFile(null)}
+                onClick={() => {
+                  setWineListFile(null)
+                  setWineListPreview(null)
+                }}
                 className="text-sm text-red-600 hover:text-red-700 flex items-center space-x-1"
               >
                 <X className="w-4 h-4" />
