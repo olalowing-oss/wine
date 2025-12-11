@@ -6,10 +6,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const apiKey = process.env.OPENAI_API_KEY
+  const apiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY
   if (!apiKey) {
     return res.status(500).json({
-      error: 'API key not configured. Please add OPENAI_API_KEY to Vercel environment variables.'
+      error: 'API key not configured. Please add OPENAI_API_KEY or VITE_OPENAI_API_KEY to Vercel environment variables.'
     })
   }
 
@@ -135,7 +135,7 @@ Please respond with a JSON object in this format:
       })
     }
 
-    const data = await response.json()
+    const data = await response.json() as any
     const aiResponse = data.choices[0].message.content
 
     // Try to parse JSON from response
