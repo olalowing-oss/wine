@@ -112,13 +112,17 @@ export function MenuMatcher() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        console.error('API error:', errorData)
+        console.error('API error:', response.status, errorData)
 
         // Show specific error message
         if (errorData.error?.includes('API key not configured')) {
           toast.error('OpenAI API-nyckel saknas. Visar demo-data istället.')
+        } else if (response.status === 404) {
+          toast.error('API-endpoint hittades inte (404). Kontrollera att /api/match-menu är deployad.')
         } else {
-          toast.error('AI-analys misslyckades. Visar demo-data istället.')
+          const errorMsg = errorData.error || errorData.message || 'Okänt fel'
+          console.error('Full error:', errorMsg, errorData)
+          toast.error(`AI-analys misslyckades: ${errorMsg}. Visar demo-data.`, { duration: 5000 })
         }
 
         // Show demo data
