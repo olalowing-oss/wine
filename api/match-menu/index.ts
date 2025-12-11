@@ -28,7 +28,9 @@ Your task:
 Available wines:
 ${JSON.stringify(availableWines, null, 2)}
 
-Please respond with a JSON object in this format:
+IMPORTANT: You MUST respond with ONLY a valid JSON object. No markdown, no explanations, no code blocks. Just pure JSON.
+
+Response format:
 {
   "matches": [
     {
@@ -123,6 +125,7 @@ Please respond with a JSON object in this format:
         messages,
         max_tokens: 4096,
         temperature: 0.7,
+        response_format: { type: 'json_object' },
       }),
     })
 
