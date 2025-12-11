@@ -1,5 +1,5 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { Wine, Home, Menu, Upload, Plus, ChevronDown, BookOpen } from 'lucide-react'
+import { Wine, Home, Menu, Upload, Plus, BookOpen } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 
 export function Layout() {
@@ -12,17 +12,19 @@ export function Layout() {
   // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (infoMenuRef.current && !infoMenuRef.current.contains(event.target as Node)) {
+      if (showInfoMenu && infoMenuRef.current && !infoMenuRef.current.contains(event.target as Node)) {
         setShowInfoMenu(false)
       }
-      if (addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
+      if (showAddMenu && addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
         setShowAddMenu(false)
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    if (showInfoMenu || showAddMenu) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showInfoMenu, showAddMenu])
 
   const navItems = [
     { path: '/wines', icon: Wine, label: 'Viner' },
@@ -31,23 +33,20 @@ export function Layout() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Bar with Navigation */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
+      {/* Simple header - only visible on desktop */}
+      <header className="bg-white border-b border-gray-200 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Title Row */}
-          <div className="flex items-center h-12 sm:h-16">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <Wine className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <Wine className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900">Min Vinsamling</h1>
+              <h1 className="text-xl font-bold text-gray-900">Min Vinsamling</h1>
             </div>
-          </div>
 
-          {/* Navigation Row */}
-          <nav className="flex items-center justify-between -mb-px overflow-x-auto">
-            <div className="flex items-center space-x-0.5 sm:space-x-1">
+            {/* Desktop Navigation */}
+            <nav className="flex items-center space-x-1">
               {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = location.pathname === item.path
@@ -56,14 +55,14 @@ export function Layout() {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 sm:py-3 border-b-2 transition-colors ${
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                       isActive
-                        ? 'border-purple-600 text-purple-600'
-                        : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                        ? 'bg-purple-100 text-purple-600'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
-                    <span className="font-medium text-sm sm:text-base hidden sm:inline">{item.label}</span>
+                    <span className="font-medium">{item.label}</span>
                   </Link>
                 )
               })}
@@ -71,22 +70,22 @@ export function Layout() {
               {/* Information Dropdown */}
               <div className="relative" ref={infoMenuRef}>
                 <button
-                  onClick={() => setShowInfoMenu(!showInfoMenu)}
-                  className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 sm:py-3 border-b-2 transition-colors ${
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setShowInfoMenu(!showInfoMenu)
+                  }}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                     location.pathname === '/info' || location.pathname === '/regions'
-                      ? 'border-purple-600 text-purple-600'
-                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                      ? 'bg-purple-100 text-purple-600'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
                   <BookOpen className="w-5 h-5" />
-                  <span className="font-medium text-sm sm:text-base hidden sm:inline">Information</span>
-                  <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${showInfoMenu ? 'rotate-180' : ''}`} />
+                  <span className="font-medium">Information</span>
                 </button>
 
                 {showInfoMenu && (
-                  <div
-                    className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20"
-                  >
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
                     <Link
                       to="/info"
                       onClick={() => setShowInfoMenu(false)}
@@ -106,63 +105,187 @@ export function Layout() {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Add Menu Dropdown - Right aligned */}
-            <div className="relative" ref={addMenuRef}>
-              <button
-                onClick={() => setShowAddMenu(!showAddMenu)}
-                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 sm:py-3 border-b-2 transition-colors ${
-                  location.pathname === '/add' || location.pathname === '/import'
-                    ? 'border-purple-600 text-purple-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                }`}
-              >
-                <Plus className="w-5 h-5" />
-                <span className="font-medium text-sm sm:text-base hidden sm:inline">Lägg till</span>
-                <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${showAddMenu ? 'rotate-180' : ''}`} />
-              </button>
-
-              {showAddMenu && (
-                <div
-                  className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20"
+              {/* Add Menu Dropdown */}
+              <div className="relative" ref={addMenuRef}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setShowAddMenu(!showAddMenu)
+                  }}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                    location.pathname === '/add' || location.pathname === '/import'
+                      ? 'bg-purple-100 text-purple-600'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
                 >
-                  <Link
-                    to="/add"
-                    onClick={() => setShowAddMenu(false)}
-                    className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Nytt vin</span>
-                  </Link>
-                  <Link
-                    to="/import"
-                    onClick={() => setShowAddMenu(false)}
-                    className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Importera</span>
-                  </Link>
-                  <div className="border-t border-gray-200 my-2"></div>
-                  <Link
-                    to="/export"
-                    onClick={() => setShowAddMenu(false)}
-                    className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Backup</span>
-                  </Link>
-                </div>
-              )}
+                  <Plus className="w-5 h-5" />
+                  <span className="font-medium">Lägg till</span>
+                </button>
+
+                {showAddMenu && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
+                    <Link
+                      to="/add"
+                      onClick={() => setShowAddMenu(false)}
+                      className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Nytt vin</span>
+                    </Link>
+                    <Link
+                      to="/import"
+                      onClick={() => setShowAddMenu(false)}
+                      className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Importera</span>
+                    </Link>
+                    <div className="border-t border-gray-200 my-2"></div>
+                    <Link
+                      to="/export"
+                      onClick={() => setShowAddMenu(false)}
+                      className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Backup</span>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile header - simple title only */}
+      <header className="bg-white border-b border-gray-200 md:hidden sticky top-0 z-10">
+        <div className="flex items-center justify-center h-14">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+              <Wine className="w-5 h-5 text-white" />
             </div>
-          </nav>
+            <h1 className="text-lg font-bold text-gray-900">Min Vinsamling</h1>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <Outlet />
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        <div className="flex items-center justify-around h-16 px-2">
+          {navItems.map((item) => {
+            const Icon = item.icon
+            const isActive = location.pathname === item.path
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-colors ${
+                  isActive
+                    ? 'text-purple-600'
+                    : 'text-gray-600'
+                }`}
+              >
+                <Icon className="w-6 h-6" />
+                <span className="text-xs font-medium">{item.label}</span>
+              </Link>
+            )
+          })}
+
+          {/* Information Menu */}
+          <div className="relative flex-1" ref={infoMenuRef}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowInfoMenu(!showInfoMenu)
+              }}
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
+                location.pathname === '/info' || location.pathname === '/regions'
+                  ? 'text-purple-600'
+                  : 'text-gray-600'
+              }`}
+            >
+              <BookOpen className="w-6 h-6" />
+              <span className="text-xs font-medium">Info</span>
+            </button>
+
+            {showInfoMenu && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+                <Link
+                  to="/info"
+                  onClick={() => setShowInfoMenu(false)}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                >
+                  <Wine className="w-5 h-5" />
+                  <span>Druvor</span>
+                </Link>
+                <Link
+                  to="/regions"
+                  onClick={() => setShowInfoMenu(false)}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  <span>Regioner</span>
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Add Menu */}
+          <div className="relative flex-1" ref={addMenuRef}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowAddMenu(!showAddMenu)
+              }}
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
+                location.pathname === '/add' || location.pathname === '/import' || location.pathname === '/export'
+                  ? 'text-purple-600'
+                  : 'text-gray-600'
+              }`}
+            >
+              <Plus className="w-6 h-6" />
+              <span className="text-xs font-medium">Lägg till</span>
+            </button>
+
+            {showAddMenu && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+                <Link
+                  to="/add"
+                  onClick={() => setShowAddMenu(false)}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>Nytt vin</span>
+                </Link>
+                <Link
+                  to="/import"
+                  onClick={() => setShowAddMenu(false)}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                >
+                  <Upload className="w-5 h-5" />
+                  <span>Importera</span>
+                </Link>
+                <div className="border-t border-gray-200 my-2"></div>
+                <Link
+                  to="/export"
+                  onClick={() => setShowAddMenu(false)}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                >
+                  <Upload className="w-5 h-5" />
+                  <span>Backup</span>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </nav>
     </div>
   )
 }
