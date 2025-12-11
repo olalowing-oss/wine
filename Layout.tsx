@@ -1,11 +1,28 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
 import { Wine, Home, Menu, Upload, Plus, ChevronDown, BookOpen } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export function Layout() {
   const location = useLocation()
   const [showAddMenu, setShowAddMenu] = useState(false)
   const [showInfoMenu, setShowInfoMenu] = useState(false)
+  const infoMenuRef = useRef<HTMLDivElement>(null)
+  const addMenuRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (infoMenuRef.current && !infoMenuRef.current.contains(event.target as Node)) {
+        setShowInfoMenu(false)
+      }
+      if (addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
+        setShowAddMenu(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const navItems = [
     { path: '/wines', icon: Wine, label: 'Viner' },
@@ -52,7 +69,7 @@ export function Layout() {
               })}
 
               {/* Information Dropdown */}
-              <div className="relative">
+              <div className="relative" ref={infoMenuRef}>
                 <button
                   onClick={() => setShowInfoMenu(!showInfoMenu)}
                   className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 sm:py-3 border-b-2 transition-colors ${
@@ -69,7 +86,6 @@ export function Layout() {
                 {showInfoMenu && (
                   <div
                     className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20"
-                    onMouseLeave={() => setShowInfoMenu(false)}
                   >
                     <Link
                       to="/info"
@@ -93,7 +109,7 @@ export function Layout() {
             </div>
 
             {/* Add Menu Dropdown - Right aligned */}
-            <div className="relative">
+            <div className="relative" ref={addMenuRef}>
               <button
                 onClick={() => setShowAddMenu(!showAddMenu)}
                 className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 sm:py-3 border-b-2 transition-colors ${
@@ -110,7 +126,6 @@ export function Layout() {
               {showAddMenu && (
                 <div
                   className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20"
-                  onMouseLeave={() => setShowAddMenu(false)}
                 >
                   <Link
                     to="/add"
