@@ -10,6 +10,7 @@ import { ImportWines } from './ImportWines'
 import { HomeWines } from './HomeWines'
 import { GrapeGuide } from './GrapeGuide'
 import { RegionGuide } from './RegionGuide'
+import { MenuMatcher } from './MenuMatcher'
 import { useWines } from './useApi'
 
 const queryClient = new QueryClient({
@@ -35,28 +36,13 @@ function App() {
             <Route path="home-wines" element={<HomeWines />} />
             <Route path="info" element={<GrapeGuide />} />
             <Route path="regions" element={<RegionGuide />} />
-            <Route path="menu" element={<MenuView />} />
+            <Route path="menu" element={<MenuMatcher />} />
             <Route path="export" element={<ExportView />} />
           </Route>
         </Routes>
       </BrowserRouter>
       <Toaster position="top-right" />
     </QueryClientProvider>
-  )
-}
-
-// Placeholder components for routes not yet created
-function MenuView() {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-gray-900">Meny & Vin</h2>
-      <p className="text-gray-600">Analysera restaurangmenyer och få vinrekommendationer</p>
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <p className="text-yellow-800">
-          Denna vy kommer att låta dig ladda upp bilder av restaurangmenyer och få AI-baserade vinrekommendationer
-        </p>
-      </div>
-    </div>
   )
 }
 
