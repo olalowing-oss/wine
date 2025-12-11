@@ -54,10 +54,7 @@ export function Layout() {
               {/* Information Dropdown */}
               <div className="relative">
                 <button
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setShowInfoMenu(!showInfoMenu)
-                  }}
+                  onClick={() => setShowInfoMenu(!showInfoMenu)}
                   className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 sm:py-3 border-b-2 transition-colors ${
                     location.pathname === '/info' || location.pathname === '/regions'
                       ? 'border-purple-600 text-purple-600'
@@ -98,10 +95,7 @@ export function Layout() {
             {/* Add Menu Dropdown - Right aligned */}
             <div className="relative">
               <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  setShowAddMenu(!showAddMenu)
-                }}
+                onClick={() => setShowAddMenu(!showAddMenu)}
                 className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 sm:py-3 border-b-2 transition-colors ${
                   location.pathname === '/add' || location.pathname === '/import'
                     ? 'border-purple-600 text-purple-600'
