@@ -54,8 +54,10 @@ export function Layout() {
               {/* Information Dropdown */}
               <div className="relative">
                 <button
-                  onClick={() => setShowInfoMenu(!showInfoMenu)}
-                  onBlur={() => setTimeout(() => setShowInfoMenu(false), 200)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setShowInfoMenu(!showInfoMenu)
+                  }}
                   className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 sm:py-3 border-b-2 transition-colors ${
                     location.pathname === '/info' || location.pathname === '/regions'
                       ? 'border-purple-600 text-purple-600'
@@ -68,9 +70,13 @@ export function Layout() {
                 </button>
 
                 {showInfoMenu && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
+                  <div
+                    className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20"
+                    onMouseLeave={() => setShowInfoMenu(false)}
+                  >
                     <Link
                       to="/info"
+                      onClick={() => setShowInfoMenu(false)}
                       className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
                     >
                       <Wine className="w-4 h-4" />
@@ -78,6 +84,7 @@ export function Layout() {
                     </Link>
                     <Link
                       to="/regions"
+                      onClick={() => setShowInfoMenu(false)}
                       className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
                     >
                       <BookOpen className="w-4 h-4" />
@@ -91,8 +98,10 @@ export function Layout() {
             {/* Add Menu Dropdown - Right aligned */}
             <div className="relative">
               <button
-                onClick={() => setShowAddMenu(!showAddMenu)}
-                onBlur={() => setTimeout(() => setShowAddMenu(false), 200)}
+                onClick={(e) => {
+                  e.preventDefault()
+                  setShowAddMenu(!showAddMenu)
+                }}
                 className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 sm:py-3 border-b-2 transition-colors ${
                   location.pathname === '/add' || location.pathname === '/import'
                     ? 'border-purple-600 text-purple-600'
@@ -105,9 +114,13 @@ export function Layout() {
               </button>
 
               {showAddMenu && (
-                <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
+                <div
+                  className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20"
+                  onMouseLeave={() => setShowAddMenu(false)}
+                >
                   <Link
                     to="/add"
+                    onClick={() => setShowAddMenu(false)}
                     className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
@@ -115,6 +128,7 @@ export function Layout() {
                   </Link>
                   <Link
                     to="/import"
+                    onClick={() => setShowAddMenu(false)}
                     className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
                   >
                     <Upload className="w-4 h-4" />
@@ -123,6 +137,7 @@ export function Layout() {
                   <div className="border-t border-gray-200 my-2"></div>
                   <Link
                     to="/export"
+                    onClick={() => setShowAddMenu(false)}
                     className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
                   >
                     <Upload className="w-4 h-4" />
