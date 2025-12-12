@@ -52,54 +52,54 @@ export function HomeWines() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900">Viner Hemma</h2>
-        <p className="text-gray-600 mt-1">
-          {homeWines.length} {homeWines.length === 1 ? 'vin' : 'viner'} i hemmaförrådet
+        <h2 className="text-2xl font-bold text-gray-900">Viner Hemma</h2>
+        <p className="text-sm text-gray-600 mt-0.5">
+          {homeWines.length} {homeWines.length === 1 ? 'vin' : 'viner'}
         </p>
       </div>
 
       {/* Search Bar */}
       {homeWines.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
+        <div className="bg-white rounded-lg shadow-sm p-3">
+          <div className="flex gap-2">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Sök efter namn, producent, druva..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
 
             {/* View Mode Toggle */}
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            <div className="flex bg-gray-100 rounded-lg p-0.5">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded transition-colors ${
+                className={`p-1.5 rounded transition-colors ${
                   viewMode === 'grid'
                     ? 'bg-white text-purple-600 shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
                 title="Kortvy"
               >
-                <Grid className="w-5 h-5" />
+                <Grid className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded transition-colors ${
+                className={`p-1.5 rounded transition-colors ${
                   viewMode === 'list'
                     ? 'bg-white text-purple-600 shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
                 title="Listvy"
               >
-                <List className="w-5 h-5" />
+                <List className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -221,7 +221,7 @@ export function HomeWines() {
           ))}
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-3">
           {Object.entries(
             filteredWines.reduce((groups, wine) => {
               const type = wine.typ || 'Okänd typ'
@@ -234,28 +234,26 @@ export function HomeWines() {
               return groups
             }, {} as Record<string, { type: string; country: string; wines: typeof filteredWines }>)
           ).map(([key, group]) => (
-            <div key={key} className="space-y-2">
-              <div className="flex items-center space-x-3 px-4 py-2 bg-gray-100 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <span className="inline-flex items-center px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-medium">
-                    {group.type}
-                  </span>
-                  <span className="flex items-center space-x-1 text-gray-700">
-                    <MapPin className="w-4 h-4" />
-                    <span className="font-medium">{group.country}</span>
-                  </span>
-                </div>
-                <span className="text-sm text-gray-600">
-                  ({group.wines.length} {group.wines.length === 1 ? 'vin' : 'viner'})
+            <div key={key} className="space-y-1.5">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
+                <span className="inline-flex items-center px-2 py-0.5 bg-purple-600 text-white rounded-full text-xs font-medium">
+                  {group.type}
+                </span>
+                <span className="flex items-center gap-1 text-gray-700 text-sm">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span className="font-medium">{group.country}</span>
+                </span>
+                <span className="text-xs text-gray-600 ml-auto">
+                  ({group.wines.length})
                 </span>
               </div>
               {group.wines.map(wine => (
                 <Link
                   key={wine.id}
                   to={`/wines/${wine.id}`}
-                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 flex items-center space-x-4 group"
+                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 flex items-center gap-3 group"
                 >
-                  <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                     {getPrimaryImageURL(wine) ? (
                       <img
                         src={getPrimaryImageURL(wine)!}
@@ -264,51 +262,47 @@ export function HomeWines() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <WineIcon className="w-8 h-8 text-gray-300" />
+                        <WineIcon className="w-6 h-6 text-gray-300" />
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors truncate">
+                        <h3 className="font-semibold text-sm text-gray-900 group-hover:text-purple-600 transition-colors truncate">
                           {wine.vin_namn}
                         </h3>
                         {wine.producent && (
-                          <p className="text-sm text-gray-600 truncate">{wine.producent}</p>
+                          <p className="text-xs text-gray-600 truncate">{wine.producent}</p>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 flex-shrink-0">
+                      <div className="flex items-center gap-2 flex-shrink-0">
                         {wine.betyg && (
-                          <div className="flex items-center space-x-1 text-yellow-500">
-                            <Star className="w-4 h-4 fill-current" />
-                            <span className="font-medium text-sm">{wine.betyg}</span>
+                          <div className="flex items-center gap-0.5 text-yellow-500">
+                            <Star className="w-3.5 h-3.5 fill-current" />
+                            <span className="font-medium text-xs">{wine.betyg}</span>
                           </div>
                         )}
                         {wine.pris && (
-                          <div className="text-sm font-semibold text-purple-600">
+                          <div className="text-xs font-semibold text-purple-600">
                             {formatPrice(wine.pris)}
                           </div>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
-                      <span className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">
-                        {wine.typ}
-                      </span>
-                      <span className="inline-flex items-center space-x-1 text-green-600">
+                    <div className="flex items-center gap-2 mt-1 text-xs text-gray-600">
+                      <span className="inline-flex items-center gap-0.5 text-green-600">
                         <Home className="w-3 h-3" />
-                        <span className="text-xs font-medium">Hemma</span>
+                        <span className="font-medium">Hemma</span>
                       </span>
-                      <span className="flex items-center space-x-1 truncate">
-                        <MapPin className="w-3 h-3 flex-shrink-0" />
-                        <span className="text-xs truncate">
-                          {wine.land || wine.ursprung || 'Okänt land'}
-                          {wine.region && `, ${wine.region}`}
+                      {wine.region && (
+                        <span className="flex items-center gap-0.5 truncate">
+                          <MapPin className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{wine.region}</span>
                         </span>
-                      </span>
+                      )}
                       {wine.druva && (
-                        <span className="text-xs truncate">{wine.druva}</span>
+                        <span className="truncate">{wine.druva}</span>
                       )}
                     </div>
                   </div>
