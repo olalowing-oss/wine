@@ -428,6 +428,7 @@ function WineEditForm({ wine, onCancel, onSave }: { wine: any; onCancel: () => v
   const [newImages, setNewImages] = useState<{ file: File; preview: string; slot: number }[]>([])
   const [uploading, setUploading] = useState(false)
   const [fetchingLocation, setFetchingLocation] = useState(false)
+  const [showMapPicker, setShowMapPicker] = useState(false)
 
   const handleGetCurrentLocation = async () => {
     if (!navigator.geolocation) {
@@ -813,9 +814,68 @@ function WineEditForm({ wine, onCancel, onSave }: { wine: any; onCancel: () => v
               </div>
             )}
 
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-gray-600 mb-2">
+                  Latitude
+                </label>
+                <input
+                  type="number"
+                  step="0.000001"
+                  value={formData.latitude || ''}
+                  onChange={(e) => setFormData({ ...formData, latitude: e.target.value ? parseFloat(e.target.value) : null })}
+                  placeholder="59.329323"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-2">
+                  Longitude
+                </label>
+                <input
+                  type="number"
+                  step="0.000001"
+                  value={formData.longitude || ''}
+                  onChange={(e) => setFormData({ ...formData, longitude: e.target.value ? parseFloat(e.target.value) : null })}
+                  placeholder="18.068581"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
             {(formData.latitude && formData.longitude) && (
-              <div className="text-xs text-gray-500">
-                Koordinater: {formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => setShowMapPicker(!showMapPicker)}
+                  className="text-sm text-purple-600 hover:text-purple-700 flex items-center gap-1"
+                >
+                  <MapPin className="w-4 h-4" />
+                  {showMapPicker ? 'Dölj karta' : 'Visa/välj på karta'}
+                </button>
+
+                {showMapPicker && (
+                  <div className="border border-gray-300 rounded-lg overflow-hidden">
+                    <iframe
+                      src={`https://www.openstreetmap.org/export/embed.html?bbox=${formData.longitude - 0.01},${formData.latitude - 0.01},${formData.longitude + 0.01},${formData.latitude + 0.01}&layer=mapnik&marker=${formData.latitude},${formData.longitude}`}
+                      style={{ width: '100%', height: '300px', border: 'none' }}
+                      title="Karta"
+                    />
+                    <div className="bg-gray-50 p-3 text-sm text-gray-600">
+                      <p>Ändra latitude/longitude ovan för att flytta markören, eller <a href={`https://www.google.com/maps?q=${formData.latitude},${formData.longitude}`} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">öppna i Google Maps</a> för att hitta exakta koordinater.</p>
+                    </div>
+                  </div>
+                )}
+
+                <a
+                  href={`https://www.google.com/maps?q=${formData.latitude},${formData.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-purple-600"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  Visa på Google Maps
+                </a>
               </div>
             )}
           </div>
