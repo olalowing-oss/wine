@@ -27,7 +27,8 @@ export function useWines() {
           plats,
           datum_tillagd,
           user_image_url_1,
-          systembolaget_img
+          user_image_url_2,
+          user_image_url_3
         `)
         .order('datum_tillagd', { ascending: false })
 
