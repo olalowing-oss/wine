@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, Wine as WineIcon, Home, MapPin, Tag, Grid, List } from 'lucide-react'
+import { Search, Wine as WineIcon, Home, MapPin, Tag, Grid, List, Star } from 'lucide-react'
 import { useWines } from './useApi'
 import { StarRating } from './StarRating'
 import { getDisplayTags, formatPrice, getPrimaryImageURL } from './wine.utils'
@@ -8,7 +8,7 @@ import { getDisplayTags, formatPrice, getPrimaryImageURL } from './wine.utils'
 export function HomeWines() {
   const { data: wines = [], isLoading, error } = useWines()
   const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
 
   // Filter only wines that are at home
   const homeWines = wines.filter(wine => wine.ar_hemma)

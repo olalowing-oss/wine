@@ -1,5 +1,5 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { Wine, Home, Menu, Upload, Plus, BookOpen } from 'lucide-react'
+import { Wine, Home, UtensilsCrossed, Upload, Plus, BookOpen } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 
 export function Layout() {
@@ -29,7 +29,7 @@ export function Layout() {
   const navItems = [
     { path: '/wines', icon: Wine, label: 'Viner' },
     { path: '/home-wines', icon: Home, label: 'Hemma' },
-    { path: '/menu', icon: Menu, label: 'Meny' },
+    { path: '/menu', icon: UtensilsCrossed, label: 'Meny' },
   ]
 
   return (

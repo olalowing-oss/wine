@@ -9,7 +9,7 @@ import { filterWines, getAllTags, getWineTypes, getDisplayTags, formatPrice, get
 export function WineList() {
   const { data: wines = [], isLoading, error } = useWines()
   const [showFilters, setShowFilters] = useState(false)
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
 
   const {
     searchQuery,
