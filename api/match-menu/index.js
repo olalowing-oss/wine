@@ -1,7 +1,5 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-
 // This endpoint requires OPENAI_API_KEY environment variable in Vercel
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -51,14 +49,14 @@ Response format:
 }`
 
     // Prepare content for OpenAI API
-    const messages: any[] = [
+    const messages = [
       {
         role: 'system',
         content: systemPrompt,
       },
     ]
 
-    const userContent: any[] = []
+    const userContent = []
 
     // Add menu file
     if (menuFile.type.startsWith('image/')) {
@@ -138,7 +136,7 @@ Response format:
       })
     }
 
-    const data = await response.json() as any
+    const data = await response.json()
     const aiResponse = data.choices[0].message.content
 
     // Try to parse JSON from response
