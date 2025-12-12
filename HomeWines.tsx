@@ -157,6 +157,8 @@ export function HomeWines() {
                   <img
                     src={getPrimaryImageURL(wine)!}
                     alt={wine.vin_namn}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
@@ -273,6 +275,7 @@ export function HomeWines() {
                         src={getPrimaryImageURL(wine)!}
                         alt={wine.vin_namn}
                         loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                       />
                     ) : (

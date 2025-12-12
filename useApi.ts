@@ -10,7 +10,25 @@ export function useWines() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('wines')
-        .select('*')
+        .select(`
+          id,
+          vin_namn,
+          typ,
+          producent,
+          land,
+          ursprung,
+          region,
+          druva,
+          pris,
+          betyg,
+          ar_hemma,
+          taggar,
+          systembolaget_nr,
+          plats,
+          datum_tillagd,
+          user_image_url_1,
+          systembolaget_img
+        `)
         .order('datum_tillagd', { ascending: false })
 
       if (error) throw error
