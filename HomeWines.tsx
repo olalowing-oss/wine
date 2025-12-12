@@ -30,10 +30,24 @@ export function HomeWines() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Laddar viner...</p>
+      <div className="space-y-3">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/2 mb-2" />
+          <div className="h-4 bg-gray-200 rounded w-1/4" />
+        </div>
+        <div className="bg-white rounded-lg shadow-sm p-3 animate-pulse">
+          <div className="h-10 bg-gray-200 rounded-lg" />
+        </div>
+        <div className="space-y-1.5">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="bg-white rounded-lg shadow-sm p-3 flex items-center gap-3 animate-pulse">
+              <div className="w-12 h-12 bg-gray-200 rounded-lg flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-3/4" />
+                <div className="h-3 bg-gray-200 rounded w-1/2" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     )
@@ -258,6 +272,7 @@ export function HomeWines() {
                       <img
                         src={getPrimaryImageURL(wine)!}
                         alt={wine.vin_namn}
+                        loading="lazy"
                         className="w-full h-full object-cover"
                       />
                     ) : (
