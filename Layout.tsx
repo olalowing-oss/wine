@@ -176,7 +176,7 @@ export function Layout() {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg z-50">
         <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
             const Icon = item.icon
@@ -186,10 +186,10 @@ export function Layout() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-colors ${
+                className={`flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-all ${
                   isActive
-                    ? 'text-purple-600'
-                    : 'text-gray-600'
+                    ? 'text-white scale-110'
+                    : 'text-white/70 hover:text-white'
                 }`}
               >
                 <Icon className="w-6 h-6" />
@@ -205,10 +205,10 @@ export function Layout() {
                 e.stopPropagation()
                 setShowInfoMenu(!showInfoMenu)
               }}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all ${
                 location.pathname === '/info' || location.pathname === '/regions'
-                  ? 'text-purple-600'
-                  : 'text-gray-600'
+                  ? 'text-white scale-110'
+                  : 'text-white/70 hover:text-white'
               }`}
             >
               <BookOpen className="w-6 h-6" />
@@ -244,10 +244,10 @@ export function Layout() {
                 e.stopPropagation()
                 setShowAddMenu(!showAddMenu)
               }}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all ${
                 location.pathname === '/add' || location.pathname === '/import' || location.pathname === '/export'
-                  ? 'text-purple-600'
-                  : 'text-gray-600'
+                  ? 'text-white scale-110'
+                  : 'text-white/70 hover:text-white'
               }`}
             >
               <Plus className="w-6 h-6" />
