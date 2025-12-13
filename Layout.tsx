@@ -1,6 +1,6 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
 import { Wine, Home, UtensilsCrossed, Upload, Plus, BookOpen } from 'lucide-react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 export function Layout() {
   const location = useLocation()
@@ -9,22 +9,28 @@ export function Layout() {
   const infoMenuRef = useRef<HTMLDivElement>(null)
   const addMenuRef = useRef<HTMLDivElement>(null)
 
-  // Close dropdowns when clicking outside
+  // Stäng menyer när man byter sida
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (showInfoMenu && infoMenuRef.current && !infoMenuRef.current.contains(event.target as Node)) {
-        setShowInfoMenu(false)
-      }
-      if (showAddMenu && addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
-        setShowAddMenu(false)
-      }
-    }
+    setShowAddMenu(false)
+    setShowInfoMenu(false)
+  }, [location.pathname])
 
-    if (showInfoMenu || showAddMenu) {
-      document.addEventListener('click', handleClickOutside)
-      return () => document.removeEventListener('click', handleClickOutside)
+  // Optimerad click-outside handler med useCallback
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (showInfoMenu && infoMenuRef.current && !infoMenuRef.current.contains(event.target as Node)) {
+      setShowInfoMenu(false)
+    }
+    if (showAddMenu && addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
+      setShowAddMenu(false)
     }
   }, [showInfoMenu, showAddMenu])
+
+  useEffect(() => {
+    if (showInfoMenu || showAddMenu) {
+      document.addEventListener('click', handleClickOutside, { passive: true })
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showInfoMenu, showAddMenu, handleClickOutside])
 
   const navItems = [
     { path: '/wines', icon: Wine, label: 'Viner' },
@@ -176,7 +182,7 @@ export function Layout() {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg z-50 will-change-transform">
         <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
             const Icon = item.icon
@@ -186,7 +192,7 @@ export function Layout() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-all ${
+                className={`flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-all touch-manipulation active:scale-95 ${
                   isActive
                     ? 'text-white scale-110'
                     : 'text-white/70 hover:text-white'
@@ -205,22 +211,24 @@ export function Layout() {
                 e.stopPropagation()
                 setShowInfoMenu(!showInfoMenu)
               }}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all ${
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all touch-manipulation active:scale-95 ${
                 location.pathname === '/info' || location.pathname === '/regions'
                   ? 'text-white scale-110'
                   : 'text-white/70 hover:text-white'
               }`}
+              aria-label="Information"
+              aria-expanded={showInfoMenu}
             >
               <BookOpen className="w-6 h-6" />
               <span className="text-xs font-medium">Info</span>
             </button>
 
             {showInfoMenu && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
                 <Link
                   to="/info"
                   onClick={() => setShowInfoMenu(false)}
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors active:scale-95 touch-manipulation"
                 >
                   <Wine className="w-5 h-5" />
                   <span>Druvor</span>
@@ -228,7 +236,7 @@ export function Layout() {
                 <Link
                   to="/regions"
                   onClick={() => setShowInfoMenu(false)}
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors active:scale-95 touch-manipulation"
                 >
                   <BookOpen className="w-5 h-5" />
                   <span>Regioner</span>
@@ -244,22 +252,24 @@ export function Layout() {
                 e.stopPropagation()
                 setShowAddMenu(!showAddMenu)
               }}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all ${
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all touch-manipulation active:scale-95 ${
                 location.pathname === '/add' || location.pathname === '/import' || location.pathname === '/export'
                   ? 'text-white scale-110'
                   : 'text-white/70 hover:text-white'
               }`}
+              aria-label="Lägg till"
+              aria-expanded={showAddMenu}
             >
               <Plus className="w-6 h-6" />
               <span className="text-xs font-medium">Lägg till</span>
             </button>
 
             {showAddMenu && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
                 <Link
                   to="/add"
                   onClick={() => setShowAddMenu(false)}
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors active:scale-95 touch-manipulation"
                 >
                   <Plus className="w-5 h-5" />
                   <span>Nytt vin</span>
@@ -267,7 +277,7 @@ export function Layout() {
                 <Link
                   to="/import"
                   onClick={() => setShowAddMenu(false)}
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors active:scale-95 touch-manipulation"
                 >
                   <Upload className="w-5 h-5" />
                   <span>Importera</span>
@@ -276,7 +286,7 @@ export function Layout() {
                 <Link
                   to="/export"
                   onClick={() => setShowAddMenu(false)}
-                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors active:scale-95 touch-manipulation"
                 >
                   <Upload className="w-5 h-5" />
                   <span>Backup</span>

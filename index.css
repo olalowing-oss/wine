@@ -35,3 +35,40 @@
     @apply bg-white rounded-lg shadow-sm p-6;
   }
 }
+
+@layer utilities {
+  /* Snabba animationer för dropdown-menyer */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInFromBottom {
+    from {
+      transform: translateY(0.5rem);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .animate-in {
+    animation: fadeIn 200ms ease-out;
+  }
+
+  .fade-in {
+    animation: fadeIn 200ms ease-out;
+  }
+
+  .slide-in-from-bottom-2 {
+    animation: slideInFromBottom 200ms ease-out;
+  }
+
+  .duration-200 {
+    animation-duration: 200ms;
+  }
+}
