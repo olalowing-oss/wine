@@ -1,17 +1,31 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster, toast } from 'react-hot-toast'
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { Layout } from './Layout'
-import { WineList } from './WineList'
-import { WineDetail } from './WineDetail'
-import { AddWine } from './AddWine'
-import { ImportWines } from './ImportWines'
-import { HomeWines } from './HomeWines'
-import { GrapeGuide } from './GrapeGuide'
-import { RegionGuide } from './RegionGuide'
-import { MenuMatcher } from './MenuMatcher'
 import { useWines } from './useApi'
+
+// Lazy load komponenter för bättre prestanda
+const WineList = lazy(() => import('./WineList').then(module => ({ default: module.WineList })))
+const WineDetail = lazy(() => import('./WineDetail').then(module => ({ default: module.WineDetail })))
+const AddWine = lazy(() => import('./AddWine').then(module => ({ default: module.AddWine })))
+const ImportWines = lazy(() => import('./ImportWines').then(module => ({ default: module.ImportWines })))
+const HomeWines = lazy(() => import('./HomeWines').then(module => ({ default: module.HomeWines })))
+const GrapeGuide = lazy(() => import('./GrapeGuide').then(module => ({ default: module.GrapeGuide })))
+const RegionGuide = lazy(() => import('./RegionGuide').then(module => ({ default: module.RegionGuide })))
+const MenuMatcher = lazy(() => import('./MenuMatcher').then(module => ({ default: module.MenuMatcher })))
+
+// Loading fallback komponent
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-200 border-t-purple-600"></div>
+        <p className="mt-4 text-gray-600">Laddar...</p>
+      </div>
+    </div>
+  )
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,20 +43,22 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Navigate to="/wines" replace />} />
-            <Route path="wines" element={<WineList />} />
-            <Route path="add" element={<AddWine />} />
-            <Route path="import" element={<ImportWines />} />
-            <Route path="wines/:id" element={<WineDetail />} />
-            <Route path="home-wines" element={<HomeWines />} />
-            <Route path="info" element={<GrapeGuide />} />
-            <Route path="regions" element={<RegionGuide />} />
-            <Route path="menu" element={<MenuMatcher />} />
-            <Route path="export" element={<ExportView />} />
-          </Route>
-        </Routes>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Navigate to="/wines" replace />} />
+              <Route path="wines" element={<WineList />} />
+              <Route path="add" element={<AddWine />} />
+              <Route path="import" element={<ImportWines />} />
+              <Route path="wines/:id" element={<WineDetail />} />
+              <Route path="home-wines" element={<HomeWines />} />
+              <Route path="info" element={<GrapeGuide />} />
+              <Route path="regions" element={<RegionGuide />} />
+              <Route path="menu" element={<MenuMatcher />} />
+              <Route path="export" element={<ExportView />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </BrowserRouter>
       <Toaster position="top-right" />
     </QueryClientProvider>
