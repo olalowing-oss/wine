@@ -6,6 +6,16 @@
   body {
     @apply bg-gray-50 text-gray-900 antialiased;
   }
+
+  /* Optimeringar för touch-enheter */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button, a {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
 }
 
 @layer components {

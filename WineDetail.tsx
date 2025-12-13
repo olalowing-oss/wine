@@ -22,12 +22,14 @@ export function WineDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: wine, isLoading } = useWine(id)
-  const { data: allWines = [] } = useWines()
   const updateMutation = useUpdateWine()
   const deleteMutation = useDeleteWine()
-  
+
   const [isEditing, setIsEditing] = useState(false)
   const [loadingRecommendations, setLoadingRecommendations] = useState(false)
+
+  // Hämta endast alla viner när vi behöver dem för AI-rekommendationer
+  const { data: allWines = [] } = useWines()
 
   if (isLoading) {
     return (
@@ -114,8 +116,9 @@ export function WineDetail() {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => navigate('/wines')}
-            className="text-gray-600 hover:text-gray-900"
+            onClick={() => navigate(-1)}
+            className="text-gray-600 hover:text-gray-900 active:scale-95 transition-transform touch-manipulation p-2 -ml-2"
+            aria-label="Tillbaka"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
@@ -125,25 +128,28 @@ export function WineDetail() {
         <div className="flex items-center space-x-2">
           <button
             onClick={handleToggleHome}
-            className={`p-2 rounded-lg transition-colors ${
+            className={`p-2 rounded-lg transition-all active:scale-95 touch-manipulation ${
               wine.ar_hemma
                 ? 'bg-green-100 text-green-700'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
+            aria-label={wine.ar_hemma ? 'Markera som ej hemma' : 'Markera som hemma'}
           >
             <Home className="w-5 h-5" />
           </button>
-          
+
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200"
+            className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95 transition-all touch-manipulation"
+            aria-label="Redigera"
           >
             <Edit2 className="w-5 h-5" />
           </button>
-          
+
           <button
             onClick={handleDelete}
-            className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200"
+            className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 active:scale-95 transition-all touch-manipulation"
+            aria-label="Ta bort"
           >
             <Trash2 className="w-5 h-5" />
           </button>
@@ -160,10 +166,12 @@ export function WineDetail() {
                 <img
                   src={getPrimaryImageURL(wine)!}
                   alt={wine.vin_namn}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               </div>
-              
+
               {images.length > 1 && (
                 <div className="grid grid-cols-3 gap-2">
                   {images.slice(1).map((img, idx) => (
@@ -171,6 +179,8 @@ export function WineDetail() {
                       <img
                         src={img}
                         alt={`${wine.vin_namn} ${idx + 2}`}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -361,7 +371,7 @@ export function WineDetail() {
           <button
             onClick={handleGenerateRecommendations}
             disabled={loadingRecommendations}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm active:scale-95 touch-manipulation"
           >
             {loadingRecommendations ? (
               <>
