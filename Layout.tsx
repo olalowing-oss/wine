@@ -1,6 +1,28 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
 import { Wine, Home, UtensilsCrossed, Upload, Plus, BookOpen } from 'lucide-react'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, memo } from 'react'
+
+// Memoized nav item för att undvika re-renders
+const NavItem = memo(({ path, icon: Icon, label, isActive }: {
+  path: string
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  isActive: boolean
+}) => (
+  <Link
+    to={path}
+    className={`flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-all touch-manipulation active:scale-95 ${
+      isActive
+        ? 'text-white scale-110'
+        : 'text-white/70 hover:text-white'
+    }`}
+  >
+    <Icon className="w-6 h-6" />
+    <span className="text-xs font-medium">{label}</span>
+  </Link>
+))
+
+NavItem.displayName = 'NavItem'
 
 export function Layout() {
   const location = useLocation()
@@ -165,10 +187,10 @@ export function Layout() {
       </header>
 
       {/* Mobile header - simple title only */}
-      <header className="bg-white border-b border-gray-200 md:hidden sticky top-0 z-10">
+      <header className="bg-white border-b border-gray-200 md:hidden sticky top-0 z-10 transform-gpu">
         <div className="flex items-center justify-center h-14">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
               <Wine className="w-5 h-5 text-white" />
             </div>
             <h1 className="text-lg font-bold text-gray-900">Min Vinsamling</h1>
@@ -182,27 +204,17 @@ export function Layout() {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg z-50 will-change-transform">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-purple-600 shadow-lg z-50 transform-gpu backdrop-blur-sm">
         <div className="flex items-center justify-around h-16 px-2">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = location.pathname === item.path
-
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-all touch-manipulation active:scale-95 ${
-                  isActive
-                    ? 'text-white scale-110'
-                    : 'text-white/70 hover:text-white'
-                }`}
-              >
-                <Icon className="w-6 h-6" />
-                <span className="text-xs font-medium">{item.label}</span>
-              </Link>
-            )
-          })}
+          {navItems.map((item) => (
+            <NavItem
+              key={item.path}
+              path={item.path}
+              icon={item.icon}
+              label={item.label}
+              isActive={location.pathname === item.path}
+            />
+          ))}
 
           {/* Information Menu */}
           <div className="relative flex-1" ref={infoMenuRef}>
