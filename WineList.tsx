@@ -1,10 +1,73 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, Filter, Wine as WineIcon, Home, MapPin, Tag, Grid, List } from 'lucide-react'
 import { useWines } from './useApi'
 import { useFilterStore } from './store'
 import { StarRating } from './StarRating'
 import { filterWines, getAllTags, getWineTypes, getDisplayTags, formatPrice, getPrimaryImageURL } from './wine.utils'
+
+// Lazy image component med Intersection Observer
+function LazyImage({ src, alt, className, width, height }: {
+  src: string | null
+  alt: string
+  className?: string
+  width?: number
+  height?: number
+}) {
+  const imgRef = useRef<HTMLImageElement>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isInView, setIsInView] = useState(false)
+
+  useEffect(() => {
+    if (!imgRef.current || !src) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsInView(true)
+            observer.disconnect()
+          }
+        })
+      },
+      { rootMargin: '50px' } // Ladda bilder 50px innan de syns
+    )
+
+    observer.observe(imgRef.current)
+    return () => observer.disconnect()
+  }, [src])
+
+  if (!src) {
+    return (
+      <div className={`flex items-center justify-center ${className}`}>
+        <WineIcon className="w-1/2 h-1/2 text-gray-300" />
+      </div>
+    )
+  }
+
+  return (
+    <div ref={imgRef} className={className}>
+      {isInView && (
+        <img
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setIsLoaded(true)}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{ backgroundColor: '#f3f4f6' }}
+        />
+      )}
+      {!isLoaded && isInView && (
+        <div className="w-full h-full bg-gray-100 animate-pulse" />
+      )}
+    </div>
+  )
+}
 
 export function WineList() {
   const { data: wines = [], isLoading, error } = useWines()
@@ -227,19 +290,13 @@ export function WineList() {
             >
               {/* Image */}
               <div className="aspect-[4/3] bg-gray-100 relative overflow-hidden">
-                {getPrimaryImageURL(wine) ? (
-                  <img
-                    src={getPrimaryImageURL(wine)!}
-                    alt={wine.vin_namn}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <WineIcon className="w-16 h-16 text-gray-300" />
-                  </div>
-                )}
+                <LazyImage
+                  src={getPrimaryImageURL(wine)}
+                  alt={wine.vin_namn}
+                  className="w-full h-full group-hover:scale-105 transition-transform duration-300"
+                  width={400}
+                  height={300}
+                />
                 
                 {/* Badges */}
                 <div className="absolute top-2 left-2 flex flex-wrap gap-2">
@@ -314,18 +371,18 @@ export function WineList() {
         </div>
       ) : (
         <div className="space-y-3">
-          {Object.entries(
+          {(Object.entries(
             filteredWines.reduce((groups, wine) => {
               const type = wine.typ || 'Okänd typ'
               const country = wine.land || wine.ursprung || 'Okänt land'
               const key = `${type} - ${country}`
               if (!groups[key]) {
-                groups[key] = { type, country, wines: [] }
+                groups[key] = { type, country, wines: [] as typeof filteredWines }
               }
               groups[key].wines.push(wine)
               return groups
             }, {} as Record<string, { type: string; country: string; wines: typeof filteredWines }>)
-          ).map(([key, group]) => (
+          ) as [string, { type: string; country: string; wines: typeof filteredWines }][]).map(([key, group]) => (
             <div key={key} className="space-y-1.5">
               <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
                 <span className="inline-flex items-center px-2 py-0.5 bg-purple-600 text-white rounded-full text-xs font-medium">
@@ -346,19 +403,13 @@ export function WineList() {
                   className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 flex items-center gap-3 group"
                 >
                   <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    {getPrimaryImageURL(wine) ? (
-                      <img
-                        src={getPrimaryImageURL(wine)!}
-                        alt={wine.vin_namn}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <WineIcon className="w-6 h-6 text-gray-300" />
-                      </div>
-                    )}
+                    <LazyImage
+                      src={getPrimaryImageURL(wine)}
+                      alt={wine.vin_namn}
+                      className="w-full h-full"
+                      width={48}
+                      height={48}
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
