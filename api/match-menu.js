@@ -17,10 +17,12 @@ export default async function handler(req, res) {
     // Build the prompt
     const systemPrompt = `Du är en professionell sommelier med djup kunskap om mat och vin. Analysera den bifogade restaurangmenyn och rekommendera vinmatchningar.
 
+VIKTIGT: Svara ALLTID på SVENSKA. Alla förklaringar, beskrivningar och rättnamn ska vara på svenska.
+
 Din uppgift:
 - Extrahera alla rätter från menyn
 - För varje rätt, rekommendera de bäst matchande vinerna från den tillgängliga vinlistan
-- Ge en UTFÖRLIG förklaring (minst 2-3 meningar) om VARFÖR varje vin passar bra till rätten
+- Ge en UTFÖRLIG förklaring på SVENSKA (minst 2-3 meningar) om VARFÖR varje vin passar bra till rätten
 - Diskutera smaker, syra, textur, och hur vinet kompletterar eller kontrasterar rättens ingredienser
 - Nämn specifika element i både rätten och vinet som gör att de harmoniserar
 - Ge ett konfidenspoäng (0-100%) för varje matchning
@@ -28,7 +30,7 @@ Din uppgift:
 Tillgängliga viner:
 ${JSON.stringify(availableWines, null, 2)}
 
-VIKTIGT: Du MÅSTE svara med ENDAST ett giltigt JSON-objekt. Ingen markdown, inga förklaringar, inga kodblock. Bara ren JSON.
+VIKTIGT: Du MÅSTE svara med ENDAST ett giltigt JSON-objekt PÅ SVENSKA. Ingen markdown, inga förklaringar, inga kodblock. Bara ren JSON.
 
 Svarsformat:
 {
@@ -64,7 +66,7 @@ Svarsformat:
     if (menuFile.type.startsWith('image/')) {
       userContent.push({
         type: 'text',
-        text: 'Here is the restaurant menu:',
+        text: 'Här är restaurangmenyn:',
       })
       userContent.push({
         type: 'image_url',
@@ -77,7 +79,7 @@ Svarsformat:
       const menuText = Buffer.from(menuFile.content, 'base64').toString('utf-8')
       userContent.push({
         type: 'text',
-        text: `Restaurant Menu:\n${menuText}`,
+        text: `Restaurangmeny:\n${menuText}`,
       })
     }
 
@@ -86,7 +88,7 @@ Svarsformat:
       if (wineListFile.type.startsWith('image/')) {
         userContent.push({
           type: 'text',
-          text: '\n\nHere is the restaurant\'s wine list:',
+          text: '\n\nHär är restaurangens vinlista:',
         })
         userContent.push({
           type: 'image_url',
@@ -98,14 +100,14 @@ Svarsformat:
         const wineListText = Buffer.from(wineListFile.content, 'base64').toString('utf-8')
         userContent.push({
           type: 'text',
-          text: `\n\nRestaurant Wine List:\n${wineListText}`,
+          text: `\n\nRestaurangens vinlista:\n${wineListText}`,
         })
       }
     }
 
     userContent.push({
       type: 'text',
-      text: '\n\nVänligen analysera menyn och ge vinmatchningsrekommendationer i det specificerade JSON-formatet. Kom ihåg att vara MYCKET utförlig i dina förklaringar - minst 2-3 meningar per vinmatchning.',
+      text: '\n\nVänligen analysera menyn och ge vinmatchningsrekommendationer på SVENSKA i det specificerade JSON-formatet. Kom ihåg att vara MYCKET utförlig i dina förklaringar på SVENSKA - minst 2-3 meningar per vinmatchning.',
     })
 
     messages.push({
