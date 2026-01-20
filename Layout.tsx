@@ -6,13 +6,16 @@ export function Layout() {
   const location = useLocation()
   const [showAddMenu, setShowAddMenu] = useState(false)
   const [showInfoMenu, setShowInfoMenu] = useState(false)
+  const [showMenuMenu, setShowMenuMenu] = useState(false)
   const infoMenuRef = useRef<HTMLDivElement>(null)
   const addMenuRef = useRef<HTMLDivElement>(null)
+  const menuMenuRef = useRef<HTMLDivElement>(null)
 
   // Stäng menyer när man byter sida
   useEffect(() => {
     setShowAddMenu(false)
     setShowInfoMenu(false)
+    setShowMenuMenu(false)
   }, [location.pathname])
 
   // Optimerad click-outside handler med useCallback
@@ -23,19 +26,21 @@ export function Layout() {
     if (showAddMenu && addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
       setShowAddMenu(false)
     }
-  }, [showInfoMenu, showAddMenu])
+    if (showMenuMenu && menuMenuRef.current && !menuMenuRef.current.contains(event.target as Node)) {
+      setShowMenuMenu(false)
+    }
+  }, [showInfoMenu, showAddMenu, showMenuMenu])
 
   useEffect(() => {
-    if (showInfoMenu || showAddMenu) {
+    if (showInfoMenu || showAddMenu || showMenuMenu) {
       document.addEventListener('click', handleClickOutside, { passive: true })
       return () => document.removeEventListener('click', handleClickOutside)
     }
-  }, [showInfoMenu, showAddMenu, handleClickOutside])
+  }, [showInfoMenu, showAddMenu, showMenuMenu, handleClickOutside])
 
   const navItems = [
     { path: '/wines', icon: Wine, label: 'Viner' },
     { path: '/home-wines', icon: Home, label: 'Hemma' },
-    { path: '/menu', icon: UtensilsCrossed, label: 'Meny' },
   ]
 
   return (
@@ -110,6 +115,47 @@ export function Layout() {
                     >
                       <BookOpen className="w-4 h-4" />
                       <span>Regioner</span>
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Meny Dropdown */}
+              <div className="relative" ref={menuMenuRef}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setShowMenuMenu(!showMenuMenu)
+                  }}
+                  className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 rounded-lg transition-all touch-manipulation active:scale-95 ${
+                    location.pathname === '/menu' || location.pathname === '/saved-menus'
+                      ? 'bg-purple-100 text-purple-600'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                  aria-label="Meny"
+                  aria-expanded={showMenuMenu}
+                >
+                  <UtensilsCrossed className="w-5 h-5" />
+                  <span className="font-medium text-sm sm:text-base hidden sm:inline">Meny</span>
+                </button>
+
+                {showMenuMenu && (
+                  <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <Link
+                      to="/menu"
+                      onClick={() => setShowMenuMenu(false)}
+                      className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors active:scale-95 touch-manipulation"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Ny meny-analys</span>
+                    </Link>
+                    <Link
+                      to="/saved-menus"
+                      onClick={() => setShowMenuMenu(false)}
+                      className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors active:scale-95 touch-manipulation"
+                    >
+                      <UtensilsCrossed className="w-4 h-4" />
+                      <span>Sparade menyer</span>
                     </Link>
                   </div>
                 )}

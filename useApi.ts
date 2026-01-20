@@ -145,6 +145,25 @@ export function useMenuPairings() {
   })
 }
 
+export function useMenuPairing(id: string | undefined) {
+  return useQuery({
+    queryKey: ['menuPairings', id],
+    queryFn: async () => {
+      if (!id) throw new Error('Inget ID angivet')
+
+      const { data, error } = await supabase
+        .from('menu_pairings')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (error) throw error
+      return data as MenuPairing
+    },
+    enabled: !!id,
+  })
+}
+
 export function useCreateMenuPairing() {
   const queryClient = useQueryClient()
 
@@ -162,6 +181,32 @@ export function useCreateMenuPairing() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuPairings'] })
       toast.success('Menyanalys skapad!')
+    },
+    onError: (error: Error) => {
+      toast.error(`Fel: ${error.message}`)
+    },
+  })
+}
+
+export function useUpdateMenuPairing() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<MenuPairing> }) => {
+      const { data, error } = await supabase
+        .from('menu_pairings')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) throw error
+      return data as MenuPairing
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['menuPairings'] })
+      queryClient.invalidateQueries({ queryKey: ['menuPairings', variables.id] })
+      toast.success('Menyanalys uppdaterad!')
     },
     onError: (error: Error) => {
       toast.error(`Fel: ${error.message}`)
@@ -193,6 +238,41 @@ export async function deleteWineImage(imageUrl: string) {
 
   const { error } = await supabase.storage
     .from('wine-images')
+    .remove([path])
+
+  if (error) throw error
+}
+
+// Menu Image Upload
+export async function uploadMenuImage(file: File, pairingId: string): Promise<string> {
+  const fileExt = file.name.split('.').pop()
+  const fileName = `public/${pairingId}/${Date.now()}.${fileExt}`
+
+  console.log('Uploading menu image:', { fileName, fileSize: file.size, fileType: file.type })
+
+  const { error: uploadError } = await supabase.storage
+    .from('menu-images')
+    .upload(fileName, file)
+
+  if (uploadError) {
+    console.error('Upload error:', uploadError)
+    throw new Error(`Bilduppladdning misslyckades: ${uploadError.message}`)
+  }
+
+  const { data } = supabase.storage
+    .from('menu-images')
+    .getPublicUrl(fileName)
+
+  console.log('Image uploaded successfully:', data.publicUrl)
+  return data.publicUrl
+}
+
+export async function deleteMenuImage(imageUrl: string) {
+  const path = imageUrl.split('/menu-images/')[1]
+  if (!path) return
+
+  const { error } = await supabase.storage
+    .from('menu-images')
     .remove([path])
 
   if (error) throw error

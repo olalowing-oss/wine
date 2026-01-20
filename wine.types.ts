@@ -62,6 +62,7 @@ export interface MenuPairing {
   user_id: string
   restaurant_name: string
   menu_image_url: string | null
+  wine_list_image_url: string | null
   menu_text: string | null
   analysis_result: any | null
   notes: string | null

@@ -1,7 +1,9 @@
-import { useState } from 'react'
-import { Upload, Wine, Sparkles, X, FileText } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Upload, Wine, Sparkles, X, FileText, Save, MapPin, Edit2 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
-import { useWines } from './useApi'
+import { useWines, useCreateMenuPairing, useUpdateMenuPairing, useMenuPairing, uploadMenuImage } from './useApi'
+import { LocationPicker } from './LocationPicker'
+import { useParams, useNavigate } from 'react-router-dom'
 
 interface MenuMatch {
   dish: string
@@ -17,13 +19,66 @@ interface MenuMatch {
 }
 
 export function MenuMatcher() {
+  const { id } = useParams()
+  const navigate = useNavigate()
   const { data: wines = [] } = useWines()
+  const { data: existingPairing, isLoading: loadingPairing } = useMenuPairing(id)
+  const createMenuPairing = useCreateMenuPairing()
+  const updateMenuPairing = useUpdateMenuPairing()
+
+  const isEditMode = !!id
+
+  // Restaurant information
+  const [restaurantName, setRestaurantName] = useState('')
+  const [location, setLocation] = useState({
+    plats: '',
+    latitude: null as number | null,
+    longitude: null as number | null,
+    adress: ''
+  })
+
   const [menuFile, setMenuFile] = useState<File | null>(null)
   const [menuPreview, setMenuPreview] = useState<string | null>(null)
   const [wineListFile, setWineListFile] = useState<File | null>(null)
   const [wineListPreview, setWineListPreview] = useState<string | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [matches, setMatches] = useState<MenuMatch[]>([])
+  const [menuImageUrl, setMenuImageUrl] = useState<string | null>(null)
+  const [wineListImageUrl, setWineListImageUrl] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  // Load existing pairing data when editing
+  useEffect(() => {
+    if (existingPairing && isEditMode) {
+      setRestaurantName(existingPairing.restaurant_name)
+      setMenuImageUrl(existingPairing.menu_image_url || null)
+      setMenuPreview(existingPairing.menu_image_url || null)
+      setWineListImageUrl(existingPairing.wine_list_image_url || null)
+      setWineListPreview(existingPairing.wine_list_image_url || null)
+
+      // Parse location from notes (temporary until we have location columns)
+      if (existingPairing.notes) {
+        const platsMatch = existingPairing.notes.match(/Plats: ([^,]+)/)
+        const adressMatch = existingPairing.notes.match(/, (.+)$/)
+        if (platsMatch) {
+          setLocation({
+            plats: platsMatch[1],
+            latitude: null,
+            longitude: null,
+            adress: adressMatch ? adressMatch[1] : ''
+          })
+        }
+      }
+
+      // Load analysis results
+      if (existingPairing.analysis_result) {
+        const result = existingPairing.analysis_result as { matches?: MenuMatch[] }
+        if (result.matches) {
+          setMatches(result.matches)
+        }
+      }
+    }
+  }, [existingPairing, isEditMode])
 
   const handleMenuFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -182,16 +237,190 @@ export function MenuMatcher() {
     })
   }
 
+  const saveAnalysis = async () => {
+    if (!restaurantName.trim()) {
+      toast.error('Vänligen ange restaurangnamn')
+      return
+    }
+
+    // Only require matches when creating new analysis (not in edit mode)
+    if (!isEditMode && matches.length === 0) {
+      toast.error('Ingen analys att spara. Analysera en meny först.')
+      return
+    }
+
+    setSaving(true)
+    try {
+      // Create notes with location info since location columns don't exist yet
+      const locationNotes = location.plats
+        ? `Plats: ${location.plats}${location.adress ? `, ${location.adress}` : ''}`
+        : ''
+
+      let uploadedMenuImageUrl = menuImageUrl
+      let uploadedWineListImageUrl = wineListImageUrl
+
+      // If editing mode and we have an existing pairing ID
+      if (isEditMode && id) {
+        // Upload new menu image if a new file was selected
+        if (menuFile && menuFile instanceof File) {
+          uploadedMenuImageUrl = await uploadMenuImage(menuFile, id)
+        }
+
+        // Upload new wine list image if a new file was selected
+        if (wineListFile && wineListFile instanceof File) {
+          uploadedWineListImageUrl = await uploadMenuImage(wineListFile, id)
+        }
+
+        // Prepare updates object
+        const updates: any = {
+          restaurant_name: restaurantName,
+          notes: locationNotes || undefined,
+        }
+
+        // Only update menu_image_url if we have a new image
+        if (uploadedMenuImageUrl) {
+          updates.menu_image_url = uploadedMenuImageUrl
+        }
+
+        // Only update wine_list_image_url if we have a new image
+        if (uploadedWineListImageUrl) {
+          updates.wine_list_image_url = uploadedWineListImageUrl
+        }
+
+        // Only update analysis_result if we have matches (new analysis was run)
+        if (matches.length > 0) {
+          updates.analysis_result = { matches }
+        }
+
+        // Update existing pairing
+        await updateMenuPairing.mutateAsync({
+          id,
+          updates
+        })
+
+        toast.success('Menyanalys uppdaterad!')
+        navigate('/saved-menus')
+      } else {
+        // Create new pairing - requires matches
+        if (matches.length === 0) {
+          toast.error('Kör AI-analys innan du sparar')
+          return
+        }
+
+        // Create new pairing first to get ID
+        const newPairing = await createMenuPairing.mutateAsync({
+          restaurant_name: restaurantName,
+          menu_image_url: null, // Will be updated after upload
+          wine_list_image_url: null, // Will be updated after upload
+          analysis_result: { matches },
+          notes: locationNotes || undefined,
+        })
+
+        const imageUpdates: any = {}
+
+        // Upload menu image if we have one
+        if (menuFile && menuFile instanceof File) {
+          uploadedMenuImageUrl = await uploadMenuImage(menuFile, newPairing.id)
+          imageUpdates.menu_image_url = uploadedMenuImageUrl
+        }
+
+        // Upload wine list image if we have one
+        if (wineListFile && wineListFile instanceof File) {
+          uploadedWineListImageUrl = await uploadMenuImage(wineListFile, newPairing.id)
+          imageUpdates.wine_list_image_url = uploadedWineListImageUrl
+        }
+
+        // Update pairing with image URLs if we have any
+        if (Object.keys(imageUpdates).length > 0) {
+          await updateMenuPairing.mutateAsync({
+            id: newPairing.id,
+            updates: imageUpdates
+          })
+        }
+
+        toast.success('Menyanalys sparad!')
+        // Reset form
+        setRestaurantName('')
+        setLocation({ plats: '', latitude: null, longitude: null, adress: '' })
+        clearFiles()
+      }
+    } catch (error: any) {
+      console.error('Error saving analysis:', error)
+
+      // Show more specific error message
+      let errorMessage = 'Kunde inte spara analysen'
+      if (error?.message) {
+        errorMessage += `: ${error.message}`
+      }
+
+      toast.error(errorMessage, { duration: 5000 })
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const clearFiles = () => {
     setMenuFile(null)
     setMenuPreview(null)
     setWineListFile(null)
     setWineListPreview(null)
     setMatches([])
+    setMenuImageUrl(null)
+    setWineListImageUrl(null)
+  }
+
+  if (loadingPairing) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-200 border-t-purple-600"></div>
+          <p className="mt-4 text-gray-600">Laddar menyanalys...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="space-y-6">
+      {/* Restaurant Information */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            {isEditMode ? <Edit2 className="w-6 h-6 text-purple-600" /> : <Wine className="w-6 h-6 text-purple-600" />}
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">
+              {isEditMode ? 'Redigera menyanalys' : 'Meny-matchning'}
+            </h2>
+            <p className="text-sm text-gray-600">
+              {isEditMode ? 'Uppdatera restauranginfo eller kör ny analys' : 'Analysera restaurangmeny och få vinrekommendationer'}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Restaurangnamn *
+            </label>
+            <input
+              type="text"
+              value={restaurantName}
+              onChange={(e) => setRestaurantName(e.target.value)}
+              placeholder="T.ex. Operakällaren"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <LocationPicker
+              value={location}
+              onChange={setLocation}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Upload Section */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Menu Upload */}
@@ -329,6 +558,29 @@ export function MenuMatcher() {
           </button>
         )}
       </div>
+
+      {/* Save Button */}
+      {(matches.length > 0 || isEditMode) && (
+        <div className="flex justify-center space-x-4">
+          <button
+            onClick={saveAnalysis}
+            disabled={saving || !restaurantName.trim()}
+            className="flex items-center space-x-2 bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          >
+            <Save className="w-5 h-5" />
+            <span>{saving ? 'Sparar...' : (isEditMode ? 'Uppdatera analys' : 'Spara menyanalys')}</span>
+          </button>
+          {isEditMode && (
+            <button
+              onClick={() => navigate('/saved-menus')}
+              className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              <X className="w-5 h-5" />
+              <span>Avbryt</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Results */}
       {matches.length > 0 && (

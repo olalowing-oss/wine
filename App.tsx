@@ -14,6 +14,7 @@ const HomeWines = lazy(() => import('./HomeWines').then(module => ({ default: mo
 const GrapeGuide = lazy(() => import('./GrapeGuide').then(module => ({ default: module.GrapeGuide })))
 const RegionGuide = lazy(() => import('./RegionGuide').then(module => ({ default: module.RegionGuide })))
 const MenuMatcher = lazy(() => import('./MenuMatcher').then(module => ({ default: module.MenuMatcher })))
+const SavedMenuAnalyses = lazy(() => import('./SavedMenuAnalyses').then(module => ({ default: module.SavedMenuAnalyses })))
 
 // Loading fallback komponent
 function LoadingFallback() {
@@ -55,6 +56,8 @@ function App() {
               <Route path="info" element={<GrapeGuide />} />
               <Route path="regions" element={<RegionGuide />} />
               <Route path="menu" element={<MenuMatcher />} />
+              <Route path="menu/:id" element={<MenuMatcher />} />
+              <Route path="saved-menus" element={<SavedMenuAnalyses />} />
               <Route path="export" element={<ExportView />} />
             </Route>
           </Routes>

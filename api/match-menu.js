@@ -15,32 +15,34 @@ export default async function handler(req, res) {
     const { menuFile, wineListFile, availableWines } = req.body
 
     // Build the prompt
-    const systemPrompt = `You are a professional sommelier. Analyze the provided restaurant menu and recommend wine pairings.
+    const systemPrompt = `Du är en professionell sommelier med djup kunskap om mat och vin. Analysera den bifogade restaurangmenyn och rekommendera vinmatchningar.
 
-Your task:
-- Extract all dishes from the menu
-- For each dish, recommend the best matching wine(s) from the available list
-- Explain WHY each wine pairs well with the dish
-- Give a confidence score (0-100%) for each pairing
+Din uppgift:
+- Extrahera alla rätter från menyn
+- För varje rätt, rekommendera de bäst matchande vinerna från den tillgängliga vinlistan
+- Ge en UTFÖRLIG förklaring (minst 2-3 meningar) om VARFÖR varje vin passar bra till rätten
+- Diskutera smaker, syra, textur, och hur vinet kompletterar eller kontrasterar rättens ingredienser
+- Nämn specifika element i både rätten och vinet som gör att de harmoniserar
+- Ge ett konfidenspoäng (0-100%) för varje matchning
 
-Available wines:
+Tillgängliga viner:
 ${JSON.stringify(availableWines, null, 2)}
 
-IMPORTANT: You MUST respond with ONLY a valid JSON object. No markdown, no explanations, no code blocks. Just pure JSON.
+VIKTIGT: Du MÅSTE svara med ENDAST ett giltigt JSON-objekt. Ingen markdown, inga förklaringar, inga kodblock. Bara ren JSON.
 
-Response format:
+Svarsformat:
 {
   "matches": [
     {
-      "dish": "Dish name",
-      "description": "Brief description if available",
+      "dish": "Rättens namn",
+      "description": "Kort beskrivning om tillgänglig",
       "recommendedWines": [
         {
-          "id": "wine-id-from-available-list",
-          "name": "Wine name",
-          "producer": "Producer name",
-          "type": "Wine type",
-          "reason": "Detailed explanation of why this pairs well",
+          "id": "vin-id-från-tillgänglig-lista",
+          "name": "Vinets namn",
+          "producer": "Producent",
+          "type": "Vintyp",
+          "reason": "Mycket utförlig förklaring (minst 2-3 meningar) om varför detta vin passar perfekt till rätten. Diskutera smaker, syra, textur och specifika element som harmoniserar.",
           "confidence": 95
         }
       ]
@@ -103,7 +105,7 @@ Response format:
 
     userContent.push({
       type: 'text',
-      text: '\n\nPlease analyze the menu and provide wine pairing recommendations in the JSON format specified.',
+      text: '\n\nVänligen analysera menyn och ge vinmatchningsrekommendationer i det specificerade JSON-formatet. Kom ihåg att vara MYCKET utförlig i dina förklaringar - minst 2-3 meningar per vinmatchning.',
     })
 
     messages.push({
